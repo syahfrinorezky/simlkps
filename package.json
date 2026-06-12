@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "alpinejs": "^3.15.12",
+    "chart.js": "^4.5.1",
+    "dayjs": "^1.11.21",
+    "filepond": "^4.32.12",
+    "flatpickr": "^4.6.13",
+    "just-validate": "^4.3.0",
+    "lucide": "^1.17.0",
+    "tailwindcss": "^4.3.0",
+    "tom-select": "^2.6.1"
+  },
+  "name": "simlkps",
+  "version": "1.0.0",
+  "description": "CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure. More information can be found at the [official site](https://codeigniter.com).",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "run": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch",
+    "build": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --minify",
+    "serve": "php spark serve",
+    "start": "concurrently \"npm run serve\" \"npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syahfrinorezky/simlkps.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/syahfrinorezky/simlkps/issues"
+  },
+  "homepage": "https://github.com/syahfrinorezky/simlkps#readme"
+}
