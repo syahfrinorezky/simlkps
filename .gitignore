@@ -126,3 +126,7 @@ _modules/*
 /phpunit.xml
 
 /node_modules/
+
+# Build Assets
+public/css/app.css
+public/js/bundle.js
