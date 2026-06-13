@@ -9,6 +9,7 @@
     "flatpickr": "^4.6.13",
     "just-validate": "^4.3.0",
     "lucide": "^1.17.0",
+    "sweetalert2": "^11.26.25",
     "tailwindcss": "^4.3.0",
     "tom-select": "^2.6.1"
   },
@@ -20,10 +21,12 @@
     "test": "tests"
   },
   "scripts": {
-    "dev": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/app.css --watch",
-    "build": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/app.css --minify",
+    "dev:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/app.css --watch",
+    "build:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/app.css --minify",
+    "dev:js": "esbuild public/js/app.js --bundle --outfile=public/js/bundle.js --watch",
+    "build:js": "esbuild public/js/app.js --bundle --minify --outfile=public/js/bundle.js",
     "serve": "php spark serve",
-    "start": "concurrently \"npm run serve\" \"npm run dev\""
+    "start": "concurrently \"npm run serve\" \"npm run dev:css\" \"npm run dev:js\""
   },
   "repository": {
     "type": "git",
@@ -36,5 +39,8 @@
   "bugs": {
     "url": "https://github.com/syahfrinorezky/simlkps/issues"
   },
-  "homepage": "https://github.com/syahfrinorezky/simlkps#readme"
+  "homepage": "https://github.com/syahfrinorezky/simlkps#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
 }
