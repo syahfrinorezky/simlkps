@@ -12,6 +12,12 @@ class UserSeeder extends Seeder
 
         $users = [
             [
+                'role'         => 'prodi',
+                'email'        => 'prodi@pnb.ac.id',
+                'nama_lengkap' => 'Prodi',
+                'password'     => password_hash('prodi123', PASSWORD_DEFAULT),
+            ],
+            [
                 'role'         => 'dosen',
                 'email'        => '2415323031@pnb.ac.id',
                 'nama_lengkap' => 'Dosen',
