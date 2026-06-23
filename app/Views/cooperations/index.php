@@ -33,6 +33,16 @@
     fileName: '',
     existingFile: '',
     dragging: false,
+    showFileError: false,
+    currentPage: 0,
+    perPage: 5,
+    totalRows: 0,
+    get totalPages() { return Math.max(1, Math.ceil(this.totalRows / this.perPage)); },
+    get startRow() { return this.currentPage * this.perPage; },
+    get endRow() { return this.startRow + this.perPage; },
+    isRowVisible(idx) { return idx >= this.startRow && idx < this.endRow; },
+    prevPage() { if (this.currentPage > 0) this.currentPage--; },
+    nextPage() { if (this.currentPage < this.totalPages - 1) this.currentPage++; },
 
     fetchDetail(id) {
         this.loading = true;
@@ -73,6 +83,7 @@
         this.waktuDurasi = '';
         this.fileName = '';
         this.existingFile = '';
+        this.showFileError = false;
         
         const fileInput = document.getElementById('bukti-file-input');
         if (fileInput) fileInput.value = '';
@@ -85,6 +96,7 @@
         this.isNewPartner = false;
         this.fileName = '';
         this.existingFile = '';
+        this.showFileError = false;
         
         const fileInput = document.getElementById('bukti-file-input');
         if (fileInput) fileInput.value = '';
@@ -114,7 +126,7 @@
             .catch(err => {
                 this.loading = false;
                 this.modalOpen = false;
-                alert(err.message);
+                this.$dispatch('show-toast', { type: 'error', message: err.message });
             });
     },
     handleDrop(e) {
@@ -124,8 +136,9 @@
             if (files[0].type === 'application/pdf' || files[0].name.toLowerCase().endsWith('.pdf')) {
                 document.getElementById('bukti-file-input').files = files;
                 this.fileName = files[0].name;
+                this.showFileError = false;
             } else {
-                alert('Hanya diperbolehkan mengunggah file PDF.');
+                this.$dispatch('show-toast', { type: 'error', message: 'Hanya diperbolehkan mengunggah file PDF.' });
             }
         }
     },
@@ -133,9 +146,10 @@
         const files = e.target.files;
         if (files.length) {
             this.fileName = files[0].name;
+            this.showFileError = false;
         }
     }
-}">
+}" x-init="totalRows = <?= count($cooperations) ?>">
 
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -243,9 +257,9 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <?php $no = 1; foreach ($cooperations as $coop) : ?>
-                            <tr class="hover:bg-slate-50/50 transition-all">
-                                <td class="p-4 text-sm text-slate-600 text-center font-medium"><?= $no++ ?></td>
+                        <?php $no = 0; foreach ($cooperations as $coop) : ?>
+                            <tr class="hover:bg-slate-50/50 transition-all" data-row-idx="<?= $no ?>" x-show="isRowVisible(<?= $no ?>)">
+                                <td class="p-4 text-sm text-slate-600 text-center font-medium"><?= $no + 1 ?></td>
                                 <td class="p-4">
                                     <div class="font-semibold text-slate-800"><?= esc($coop['nama_mitra']) ?></div>
                                     <div class="text-xs text-slate-400 capitalize"><?= esc($coop['jenis_mitra']) ?> | <?= esc($coop['negara']) ?></div>
@@ -287,18 +301,18 @@
                                     </div>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php $no++; endforeach; ?>
                     </tbody>
                 </table>
             </div>
 
             <div class="block md:hidden p-4 space-y-4 bg-slate-50/30">
-                <?php $no = 1; foreach ($cooperations as $coop) : ?>
-                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4 hover:shadow-md transition-all duration-200">
+                <?php $no = 0; foreach ($cooperations as $coop) : ?>
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4 hover:shadow-md transition-all duration-200" data-row-idx="<?= $no ?>" x-show="isRowVisible(<?= $no ?>)">
                         <div class="flex items-start justify-between gap-3">
                             <div class="space-y-1">
                                 <span class="inline-flex px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-slate-100 text-slate-500">
-                                    No. <?= $no++ ?>
+                                    No. <?= $no + 1 ?>
                                 </span>
                                 <h4 class="font-bold text-slate-800 text-base leading-tight"><?= esc($coop['nama_mitra']) ?></h4>
                                 <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
@@ -359,7 +373,45 @@
                             </div>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                <?php $no++; endforeach; ?>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-white rounded-b-2xl" x-show="totalPages > 1">
+                <p class="text-sm text-slate-500">
+                    Menampilkan <span class="font-semibold text-slate-700" x-text="Math.min(startRow + 1, totalRows)"></span>–<span class="font-semibold text-slate-700" x-text="Math.min(endRow, totalRows)"></span>
+                    dari <span class="font-semibold text-slate-700" x-text="totalRows"></span> data
+                </p>
+                <div class="flex items-center gap-2">
+                    <button
+                        @click="prevPage()"
+                        :disabled="currentPage === 0"
+                        :class="currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100 cursor-pointer'"
+                        class="p-2 rounded-xl border border-slate-200 text-slate-600 transition-all"
+                        title="Halaman sebelumnya"
+                    >
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+
+                    <template x-for="page in totalPages" :key="page">
+                        <button
+                            @click="currentPage = page - 1"
+                            :class="currentPage === page - 1 ? 'bg-primary text-white border-primary shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 cursor-pointer'"
+                            class="w-8 h-8 flex items-center justify-center rounded-xl border text-sm font-semibold transition-all"
+                            x-text="page"
+                        ></button>
+                    </template>
+
+                    <button
+                        @click="nextPage()"
+                        :disabled="currentPage >= totalPages - 1"
+                        :class="currentPage >= totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-slate-100 cursor-pointer'"
+                        class="p-2 rounded-xl border border-slate-200 text-slate-600 transition-all"
+                        title="Halaman berikutnya"
+                    >
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
         <?php endif; ?>
     </div>
@@ -522,7 +574,7 @@
                 <span class="text-sm text-slate-500 font-semibold">Memuat data...</span>
             </div>
 
-            <form :action="formAction" method="POST" enctype="multipart/form-data" class="space-y-0">
+            <form :action="formAction" method="POST" enctype="multipart/form-data" @submit="if (!existingFile && !fileName) { $event.preventDefault(); showFileError = true; $dispatch('show-toast', { type: 'error', message: 'Silakan unggah bukti kerja sama berupa file PDF terlebih dahulu.' }); }" class="space-y-0">
                 <?= csrf_field() ?>
 
                 <!-- Header Modal -->
@@ -682,9 +734,13 @@
                                         <span x-text="fileName" class="truncate max-w-[200px]"></span>
                                     </div>
                                 </div>
-                                <input id="bukti-file-input" type="file" name="bukti_kerjasama" :required="!existingFile" class="hidden" accept=".pdf" @change="handleSelect($event)">
+                                <input id="bukti-file-input" type="file" name="bukti_kerjasama" class="hidden" accept=".pdf" @change="handleSelect($event)">
                             </label>
                         </div>
+                        <p x-show="showFileError" class="text-xs text-red-500 font-semibold mt-1.5 flex items-center gap-1" x-cloak>
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5 shrink-0"></i>
+                            <span>Bukti kerja sama berupa file PDF wajib diunggah.</span>
+                        </p>
                     </div>
                 </div>
 
