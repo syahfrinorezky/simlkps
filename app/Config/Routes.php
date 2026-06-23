@@ -23,3 +23,17 @@ $routes->group('users', ['filter' => 'auth'], function($routes) {
     $routes->get('restore/(:num)', 'UserController::restore/$1');
     $routes->get('purge/(:num)', 'UserController::purge/$1');
 });
+
+$routes->group('cooperations', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'CooperationController::index');
+    $routes->get('education', 'CooperationController::education');
+    $routes->get('research', 'CooperationController::research');
+    $routes->get('community', 'CooperationController::community');
+    $routes->get('create', 'CooperationController::create');
+    $routes->post('store', 'CooperationController::store');
+    $routes->get('edit/(:any)', 'CooperationController::edit/$1');
+    $routes->post('update/(:any)', 'CooperationController::update/$1');
+    $routes->get('delete/(:any)', 'CooperationController::delete/$1');
+    $routes->get('detail/(:any)', 'CooperationController::detail/$1');
+    $routes->get('download/(:any)', 'CooperationController::download/$1');
+});
