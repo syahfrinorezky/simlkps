@@ -45,6 +45,8 @@ $routes->group('students', ['namespace' => 'App\Controllers', 'filter' => 'auth'
     $routes->get('detail-admission/(:any)', 'StudentController::detailAdmission/$1');
     $routes->post('update-admission/(:any)', 'StudentController::updateAdmission/$1');
     $routes->get('delete-admission/(:any)', 'StudentController::deleteAdmission/$1');
+    $routes->get('export-admission', 'StudentController::exportAdmission');
+    $routes->post('import-admission', 'StudentController::importAdmission');
 
     $routes->post('store-foreign', 'StudentController::storeForeign');
     $routes->get('detail-foreign/(:any)', 'StudentController::detailForeign/$1');
