@@ -11,6 +11,8 @@
         <?= $title ? $title . ' | SIM-LKPS' : 'SIM-LKPS' ?>
     </title>
 
+    <link rel="icon" type="image/png" href="<?= base_url('pnb-logo.png') ?>">
+
     <link rel="stylesheet" href="<?= base_url('css/app.css') ?>">
 
     <style>

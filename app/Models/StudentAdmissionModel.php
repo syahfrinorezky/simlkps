@@ -20,7 +20,8 @@ class StudentAdmissionModel extends Model
         'jumlah_lulus_seleksi',
         'mahasiswa_baru_reguler',
         'mahasiswa_baru_transfer',
-        'mahasiswa_aktif'
+        'mahasiswa_aktif_reguler',
+        'mahasiswa_aktif_transfer'
     ];
     protected $useTimestamps = true;
 
