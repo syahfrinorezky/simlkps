@@ -15,10 +15,15 @@ class ForeignStudentModel extends Model
         'period_id',
         'study_program_id',
         'tahun_akademik',
-        'mahasiswa_asing_penuh_waktu',
-        'mahasiswa_asing_paruh_waktu',
-        'negara_asal',
-        'jenjang'
+        'mahasiswa_aktif_ts2',
+        'mahasiswa_aktif_ts1',
+        'mahasiswa_aktif_ts',
+        'mahasiswa_asing_full_ts2',
+        'mahasiswa_asing_full_ts1',
+        'mahasiswa_asing_full_ts',
+        'mahasiswa_asing_part_ts2',
+        'mahasiswa_asing_part_ts1',
+        'mahasiswa_asing_part_ts'
     ];
     protected $useTimestamps = true;
 
@@ -35,8 +40,6 @@ class ForeignStudentModel extends Model
         if ($search) {
             $builder->groupStart()
                 ->like('study_programs.nama_prodi', $search)
-                ->orLike('foreign_students.negara_asal', $search)
-                ->orLike('foreign_students.jenjang', $search)
                 ->groupEnd();
         }
 
