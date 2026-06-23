@@ -14,7 +14,7 @@
     <meta name="description" content="Sistem Informasi Laporan Kinerja Program Studi">
     <meta name="author" content="Program Studi">
 
-    <link rel="icon" type="image/png" href="<?= base_url('favicon.png') ?>">
+    <link rel="icon" type="image/png" href="<?= base_url('pnb-logo.png') ?>">
 
     <link rel="stylesheet" href="<?= base_url('css/app.css') ?>">
 
