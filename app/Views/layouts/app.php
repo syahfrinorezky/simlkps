@@ -48,14 +48,13 @@
         </div>
     </div>
 
-    <!-- Script for Alpine (if not bundled) and lucide icons -->
     <script src="<?= base_url('js/bundle.js') ?>"></script>
-    <!-- Fallback CDN for Lucide Icons & Alpine in case bundle.js doesn't have them -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+
+    <!-- delete modal -->
+    <?= $this->include('components/delete_modal') ?>
+
+    <!-- toast notification -->
+    <?= $this->include('components/toast') ?>
 
     <?= $this->renderSection('scripts') ?>
 
