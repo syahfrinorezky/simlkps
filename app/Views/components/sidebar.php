@@ -1,9 +1,15 @@
 <?php
     $role = session()->get('userRole') ?? 'guest';
     $currentUri = uri_string();
+    $currentTab = request()->getVar('tab') ?? 'admission';
 
     // Function to check if a menu is active
-    $isActive = function($path) use ($currentUri) {
+    $isActive = function($path, $tab = null) use ($currentUri, $currentTab) {
+        if ($path === 'students' && $tab !== null) {
+            return ($currentUri == 'students' && $currentTab === $tab)
+                ? 'bg-primary text-white shadow-md'
+                : 'text-slate-500 hover:text-primary hover:bg-primary/10';
+        }
         return ($currentUri == $path || strpos($currentUri, $path . '/') === 0)
             ? 'bg-primary text-white shadow-md'
             : 'text-slate-500 hover:text-primary hover:bg-primary/10';
@@ -131,7 +137,7 @@
 
         <!-- ==================== MAHASISWA ==================== -->
         <?php
-            $mahasiswaPaths = ['students/selection', 'students/foreign'];
+            $mahasiswaPaths = ['students'];
             $mahasiswaActive = $isGroupActive($mahasiswaPaths);
         ?>
         <?php if (in_array($role, ['admin', 'prodi'])): ?>
@@ -149,12 +155,12 @@
                 x-transition:enter-start="opacity-0 -translate-y-1"
                 x-transition:enter-end="opacity-100 translate-y-0"
                 class="ml-4 mt-1 space-y-0.5 border-l-2 border-slate-200 pl-3">
-                <a href="<?= base_url('students/selection') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('students/selection') ?>">
+                <a href="<?= base_url('students?tab=admission') ?>"
+                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('students', 'admission') ?>">
                     Seleksi Mahasiswa
                 </a>
-                <a href="<?= base_url('students/foreign') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('students/foreign') ?>">
+                <a href="<?= base_url('students?tab=foreign') ?>"
+                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('students', 'foreign') ?>">
                     Mahasiswa Asing
                 </a>
             </div>

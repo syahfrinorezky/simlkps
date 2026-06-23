@@ -37,3 +37,17 @@ $routes->group('cooperations', ['namespace' => 'App\Controllers'], function ($ro
     $routes->get('detail/(:any)', 'CooperationController::detail/$1');
     $routes->get('download/(:any)', 'CooperationController::download/$1');
 });
+
+$routes->group('students', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'StudentController::index');
+    
+    $routes->post('store-admission', 'StudentController::storeAdmission');
+    $routes->get('detail-admission/(:any)', 'StudentController::detailAdmission/$1');
+    $routes->post('update-admission/(:any)', 'StudentController::updateAdmission/$1');
+    $routes->get('delete-admission/(:any)', 'StudentController::deleteAdmission/$1');
+
+    $routes->post('store-foreign', 'StudentController::storeForeign');
+    $routes->get('detail-foreign/(:any)', 'StudentController::detailForeign/$1');
+    $routes->post('update-foreign/(:any)', 'StudentController::updateForeign/$1');
+    $routes->get('delete-foreign/(:any)', 'StudentController::deleteForeign/$1');
+});
