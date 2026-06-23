@@ -150,18 +150,34 @@ class CooperationController extends BaseController
             ]);
         }
 
+        $id = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
+
+        $partnerName = 'Mitra';
+        if (!empty($partnerId)) {
+            $partner = $this->partnerModel->find($partnerId);
+            if ($partner) {
+                $partnerName = $partner['nama_mitra'];
+            }
+        } elseif (!empty($newPartnerName)) {
+            $partnerName = $newPartnerName;
+        }
+
+        $cleanPartnerName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $partnerName);
+        $cleanPartnerName = preg_replace('/__+/', '_', $cleanPartnerName);
+        $cleanPartnerName = trim($cleanPartnerName, '_');
+
         $buktiKerjasama = '';
         $file = $this->request->getFile('bukti_kerjasama');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             if (!is_dir(FCPATH . 'uploads/cooperations')) {
                 mkdir(FCPATH . 'uploads/cooperations', 0777, true);
             }
-            $newName = $file->getRandomName();
+            $jenis = $this->request->getPost('jenis_kerjasama');
+            $tahun = $this->request->getPost('tahun_berakhir');
+            $newName = 'bukti_' . ucfirst($jenis) . '_' . $cleanPartnerName . '_' . $tahun . '_' . substr($id, 0, 8) . '.pdf';
             $file->move(FCPATH . 'uploads/cooperations', $newName);
             $buktiKerjasama = $newName;
         }
-
-        $id = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
 
         $this->cooperationModel->insert([
             'id' => $id,
@@ -243,13 +259,29 @@ class CooperationController extends BaseController
             ]);
         }
 
+        $partnerName = 'Mitra';
+        if (!empty($partnerId)) {
+            $partner = $this->partnerModel->find($partnerId);
+            if ($partner) {
+                $partnerName = $partner['nama_mitra'];
+            }
+        } elseif (!empty($newPartnerName)) {
+            $partnerName = $newPartnerName;
+        }
+
+        $cleanPartnerName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $partnerName);
+        $cleanPartnerName = preg_replace('/__+/', '_', $cleanPartnerName);
+        $cleanPartnerName = trim($cleanPartnerName, '_');
+
         $buktiKerjasama = $cooperation['bukti_kerjasama'];
         $file = $this->request->getFile('bukti_kerjasama');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             if (!is_dir(FCPATH . 'uploads/cooperations')) {
                 mkdir(FCPATH . 'uploads/cooperations', 0777, true);
             }
-            $newName = $file->getRandomName();
+            $jenis = $this->request->getPost('jenis_kerjasama');
+            $tahun = $this->request->getPost('tahun_berakhir');
+            $newName = 'bukti_' . ucfirst($jenis) . '_' . $cleanPartnerName . '_' . $tahun . '_' . substr($id, 0, 8) . '.pdf';
             $file->move(FCPATH . 'uploads/cooperations', $newName);
             
             if (!empty($cooperation['bukti_kerjasama']) && file_exists(FCPATH . 'uploads/cooperations/' . $cooperation['bukti_kerjasama'])) {
@@ -307,7 +339,12 @@ class CooperationController extends BaseController
             return redirect()->back()->with('error', 'File tidak ditemukan.');
         }
 
-        return $this->response->download($filepath, null);
+        $downloadName = $filename;
+        if (pathinfo($filename, PATHINFO_EXTENSION) !== 'pdf') {
+            $downloadName .= '.pdf';
+        }
+
+        return $this->response->download($downloadName, file_get_contents($filepath));
     }
 
     public function detail($id)
