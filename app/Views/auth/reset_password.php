@@ -25,8 +25,14 @@ Reset Password Baru
                         Selamat Datang
                     </p>
                     <h2 class="text-3xl leading-snug font-bold text-primary font-montserrat">
-                        Sistem Informasi LKPS D4 Administrasi Jaringan Komputer
+                        Sistem Smart Repository Otomatis LKPS
                     </h2>
+                    <p class="text-lg font-semibold text-secondary font-montserrat mt-2">
+                        Program Studi D2 Administrasi Jaringan Komputer
+                    </p>
+                    <p class="text-base text-secondary/80 font-montserrat">
+                        Jurusan Teknologi Informasi
+                    </p>
                 </div>
                 <!-- HERO -->
                 <div class="mt-10">
@@ -56,8 +62,14 @@ Reset Password Baru
                     Selamat Datang
                 </p>
                 <h2 class="text-base font-bold text-primary font-montserrat leading-snug">
-                    Sistem Informasi LKPS D4 Administrasi Jaringan Komputer
+                    Sistem Smart Repository Otomatis LKPS
                 </h2>
+                <p class="text-xs font-semibold text-secondary font-montserrat mt-0.5">
+                    Program Studi D2 Administrasi Jaringan Komputer
+                </p>
+                <p class="text-[10px] text-secondary/80 font-montserrat">
+                    Jurusan Teknologi Informasi
+                </p>
             </div>
         </div>
         <!-- RIGHT SIDE -->
