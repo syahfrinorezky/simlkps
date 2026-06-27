@@ -246,12 +246,12 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200">
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-12 text-center">No</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Lembaga Mitra</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-32 text-center">Tingkat</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Judul Kegiatan</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Manfaat bagi PS</th>
+                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[250px]">Lembaga Mitra</th>
+                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-24 text-center">Tingkat</th>
+                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-44">Judul Kegiatan</th>
+                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-44">Manfaat bagi PS</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-36">Waktu & Durasi</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Bukti</th>
+                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-36">Bukti</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-24 text-center">Berakhir</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-28 text-center">Aksi</th>
                         </tr>
@@ -270,8 +270,8 @@
                                         <?= esc($coop['tingkat']) ?>
                                     </span>
                                 </td>
-                                <td class="p-4 text-sm text-slate-700 font-medium max-w-xs truncate" title="<?= esc($coop['judul_kerjasama']) ?>"><?= esc($coop['judul_kerjasama']) ?></td>
-                                <td class="p-4 text-sm text-slate-500 max-w-xs truncate" title="<?= esc($coop['manfaat']) ?>"><?= esc($coop['manfaat']) ?></td>
+                                <td class="p-4 text-sm text-slate-700 font-medium max-w-[170px] truncate" title="<?= esc($coop['judul_kerjasama']) ?>"><?= esc($coop['judul_kerjasama']) ?></td>
+                                <td class="p-4 text-sm text-slate-500 max-w-[170px] truncate" title="<?= esc($coop['manfaat']) ?>"><?= esc($coop['manfaat']) ?></td>
                                 <td class="p-4 text-sm text-slate-600">
                                     <div class="font-medium"><?= esc($coop['waktu_durasi']) ?></div>
                                     <div class="text-xs text-slate-400"><?= date('d/m/Y', strtotime($coop['tanggal_mulai'])) ?></div>
