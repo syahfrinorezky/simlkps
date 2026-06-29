@@ -80,6 +80,19 @@ class FundController extends BaseController
         $periodId = $activeData['activePeriodId'];
         $periods = $activeData['periods'];
 
+        if ($periodId === null) {
+            return view('funds/index', [
+                'title'        => 'Penggunaan Dana',
+                'funds'        => [],
+                'periods'      => [],
+                'selectedPeriod' => null,
+                'years'        => ['ts' => date('Y'), 'ts1' => date('Y') - 1, 'ts2' => date('Y') - 2],
+                'search'       => $search,
+                'canModify'    => $this->canModify(),
+                'noPeriods'    => true,
+            ]);
+        }
+
         // Auto init rows if empty
         $this->initRows($periodId);
 
@@ -103,6 +116,7 @@ class FundController extends BaseController
             'years' => $years,
             'search' => $search,
             'canModify' => $this->canModify(),
+            'noPeriods' => false,
         ]);
     }
 
