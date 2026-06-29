@@ -47,8 +47,7 @@ class MakeLecturerFieldsNullable extends Migration
         // 5. community_services
         if ($this->db->tableExists('community_services')) {
             $this->forge->modifyColumn('community_services', [
-                'tahun'       => ['type' => 'YEAR', 'null' => true],
-                'jumlah_dana' => ['type' => 'DECIMAL', 'constraint' => '15,2', 'null' => true],
+                'tahun' => ['type' => 'YEAR', 'null' => true],
             ]);
         }
 
