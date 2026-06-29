@@ -388,6 +388,17 @@ class CourseController extends BaseController
         $periodId = $activeData['activePeriodId'];
         $periods = $activeData['periods'];
 
+        if ($periodId === null) {
+            return view('courses/excellence', [
+                'title' => 'Kepuasan Mahasiswa',
+                'satisfactions' => [],
+                'periods' => [],
+                'selectedPeriod' => null,
+                'search' => $search,
+                'canModify' => $this->canModify(),
+            ]);
+        }
+
         // Auto initialize the 5 aspects
         $this->initExcellence($periodId);
 
