@@ -129,3 +129,79 @@ $routes->group('lecturers', ['namespace' => 'App\Controllers', 'filter' => 'auth
     $routes->post('outputs/update/(:any)', 'LecturerController::updateOutput/$1');
     $routes->get('outputs/delete/(:any)', 'LecturerController::deleteOutput/$1');
 });
+
+// Tabel 4: Penggunaan Dana
+$routes->group('funds', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'FundController::index');
+    $routes->post('store', 'FundController::store');
+    $routes->get('show/(:any)', 'FundController::show/$1');
+    $routes->post('update/(:any)', 'FundController::update/$1');
+    $routes->get('delete/(:any)', 'FundController::delete/$1');
+    $routes->get('export-excel', 'FundController::exportExcel');
+    $routes->get('export-pdf', 'FundController::exportPdf');
+    $routes->post('import-excel', 'FundController::importExcel');
+});
+
+// Tabel 5: Pembelajaran (Kurikulum, Integrasi, Kepuasan)
+$routes->group('courses', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('curriculum', 'CourseController::curriculum');
+    $routes->post('curriculum/store', 'CourseController::storeCurriculum');
+    $routes->get('curriculum/show/(:any)', 'CourseController::showCurriculum/$1');
+    $routes->post('curriculum/update/(:any)', 'CourseController::updateCurriculum/$1');
+    $routes->get('curriculum/delete/(:any)', 'CourseController::deleteCurriculum/$1');
+    $routes->get('curriculum/export-excel', 'CourseController::exportCurriculumExcel');
+    $routes->get('curriculum/export-pdf', 'CourseController::exportCurriculumPdf');
+    $routes->post('curriculum/import-excel', 'CourseController::importCurriculumExcel');
+
+    $routes->get('research-integration', 'CourseController::researchIntegration');
+    $routes->post('research-integration/store', 'CourseController::storeIntegration');
+    $routes->get('research-integration/show/(:any)', 'CourseController::showIntegration/$1');
+    $routes->post('research-integration/update/(:any)', 'CourseController::updateIntegration/$1');
+    $routes->get('research-integration/delete/(:any)', 'CourseController::deleteIntegration/$1');
+    $routes->get('research-integration/export-excel', 'CourseController::exportIntegrationExcel');
+    $routes->get('research-integration/export-pdf', 'CourseController::exportIntegrationPdf');
+    $routes->post('research-integration/import-excel', 'CourseController::importIntegrationExcel');
+
+    $routes->get('excellence', 'CourseController::excellence');
+    $routes->post('excellence/store', 'CourseController::storeExcellence');
+    $routes->get('excellence/show/(:any)', 'CourseController::showExcellence/$1');
+    $routes->post('excellence/update/(:any)', 'CourseController::updateExcellence/$1');
+    $routes->get('excellence/delete/(:any)', 'CourseController::deleteExcellence/$1');
+    $routes->get('excellence/export-excel', 'CourseController::exportExcellenceExcel');
+    $routes->get('excellence/export-pdf', 'CourseController::exportExcellencePdf');
+    $routes->post('excellence/import-excel', 'CourseController::importExcellenceExcel');
+});
+
+// Tabel 6: Penelitian Kolaborasi & Rujukan
+$routes->group('researches', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('collaboration', 'ResearchCollaborationController::index');
+    $routes->post('collaboration/store', 'ResearchCollaborationController::storeCollaboration');
+    $routes->get('collaboration/show/(:any)', 'ResearchCollaborationController::showCollaboration/$1');
+    $routes->post('collaboration/update/(:any)', 'ResearchCollaborationController::updateCollaboration/$1');
+    $routes->get('collaboration/delete/(:any)', 'ResearchCollaborationController::deleteCollaboration/$1');
+    $routes->get('collaboration/export-excel', 'ResearchCollaborationController::exportCollaborationExcel');
+    $routes->get('collaboration/export-pdf', 'ResearchCollaborationController::exportCollaborationPdf');
+    $routes->post('collaboration/import-excel', 'ResearchCollaborationController::importCollaborationExcel');
+
+    $routes->get('references', 'ResearchCollaborationController::references');
+    $routes->post('references/store', 'ResearchCollaborationController::storeReference');
+    $routes->get('references/show/(:any)', 'ResearchCollaborationController::showReference/$1');
+    $routes->post('references/update/(:any)', 'ResearchCollaborationController::updateReference/$1');
+    $routes->get('references/delete/(:any)', 'ResearchCollaborationController::deleteReference/$1');
+    $routes->get('references/export-excel', 'ResearchCollaborationController::exportReferenceExcel');
+    $routes->get('references/export-pdf', 'ResearchCollaborationController::exportReferencePdf');
+    $routes->post('references/import-excel', 'ResearchCollaborationController::importReferenceExcel');
+});
+
+// Tabel 7: PkM Kolaborasi
+$routes->group('community-services', ['namespace' => 'App\Controllers', 'filter' => 'auth'], function ($routes) {
+    $routes->get('collaboration', 'CommunityServiceCollaborationController::index');
+    $routes->post('collaboration/store', 'CommunityServiceCollaborationController::storeCollaboration');
+    $routes->get('collaboration/show/(:any)', 'CommunityServiceCollaborationController::showCollaboration/$1');
+    $routes->post('collaboration/update/(:any)', 'CommunityServiceCollaborationController::updateCollaboration/$1');
+    $routes->get('collaboration/delete/(:any)', 'CommunityServiceCollaborationController::deleteCollaboration/$1');
+    $routes->get('collaboration/export-excel', 'CommunityServiceCollaborationController::exportCollaborationExcel');
+    $routes->get('collaboration/export-pdf', 'CommunityServiceCollaborationController::exportCollaborationPdf');
+    $routes->post('collaboration/import-excel', 'CommunityServiceCollaborationController::importCollaborationExcel');
+});
+
