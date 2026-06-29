@@ -40,7 +40,7 @@
 <!-- Sidebar -->
 <div
     id="sidebar"
-    class="flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen overflow-y-scroll lg:overflow-y-auto no-scrollbar shrink-0 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out"
+    class="flex flex-col absolute z-40 left-0 top-0 lg:static lg:left-auto lg:top-auto lg:translate-x-0 h-screen no-scrollbar shrink-0 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out"
     :class="[
         sidebarOpen ? 'translate-x-0 w-72' : '-translate-x-72 w-72',
         'lg:translate-x-0',
@@ -49,7 +49,7 @@
     @keydown.escape.window="sidebarOpen = false"
 >
     <!-- Sidebar header -->
-    <div class="flex justify-between items-center pr-3 sm:px-2 py-4 border-b border-slate-200 px-4">
+    <div class="shrink-0 flex justify-between items-center pr-3 sm:px-2 py-4 border-b border-slate-200 px-4">
         <!-- Logo -->
         <a class="flex items-center overflow-hidden min-w-0" href="<?= base_url('/') ?>">
             <span class="text-2xl font-bold text-primary tracking-tight whitespace-nowrap transition-all duration-300 origin-left" :class="sidebarCollapsed ? 'lg:scale-x-0 lg:opacity-0 lg:w-0 lg:overflow-hidden' : 'scale-x-100 opacity-100'">LKPS</span>
@@ -67,18 +67,20 @@
         </button>
     </div>
 
-    <!-- Search input -->
-    <div class="px-4 py-4 overflow-hidden" :class="sidebarCollapsed ? 'lg:hidden' : ''">
-        <div class="relative">
-            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-            <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search">
+    <!-- Scrollable Body -->
+    <div class="flex-1 overflow-y-auto no-scrollbar">
+        <!-- Search input -->
+        <div class="px-4 py-4 overflow-hidden shrink-0" :class="sidebarCollapsed ? 'lg:hidden' : ''">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                <input type="text" class="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search">
+            </div>
         </div>
-    </div>
 
-    <!-- Links -->
-    <ul class="pt-3 pb-6 space-y-1" :class="sidebarCollapsed ? 'lg:px-2' : 'px-4'">
+        <!-- Links -->
+        <ul class="pt-3 pb-6 space-y-1" :class="sidebarCollapsed ? 'lg:px-2' : 'px-4'">
 
-        <!-- Dashboard (All Roles) -->
+            <!-- Dashboard (All Roles) -->
         <li>
             <a href="<?= base_url('/') ?>" class="group flex py-2.5 px-3 rounded-lg font-medium transition-colors <?= $isActive('') ?> <?= $isActive('dashboard') ?>">
                 <i data-lucide="layout-dashboard" class="w-5 h-5 shrink-0 <?= $iconColor('') ?>"></i>
@@ -86,13 +88,38 @@
             </a>
         </li>
 
-        <!-- Manajemen User (Admin only) -->
+        <!-- ==================== MANAJEMEN ==================== -->
+        <?php
+            $manajemenPaths = ['users', 'periods'];
+            $manajemenActive = $isGroupActive($manajemenPaths);
+        ?>
         <?php if ($role === 'admin'): ?>
-        <li>
-            <a href="<?= base_url('users') ?>" class="group flex py-2.5 px-3 rounded-lg font-medium transition-colors <?= $isActive('users') ?>">
-                <i data-lucide="users" class="w-5 h-5 shrink-0 <?= $iconColor('users') ?>"></i>
-                <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" :class="sidebarCollapsed ? 'lg:opacity-0 lg:w-0 lg:ml-0' : 'opacity-100'">Manajemen User</span>
-            </a>
+        <li x-data="{ open: <?= $manajemenActive ? 'true' : 'false' ?> }">
+            <button @click="open = !open"
+                class="group w-full flex items-center justify-between py-2.5 px-3 rounded-lg font-medium transition-colors <?= $manajemenActive ? 'text-primary' : 'text-slate-500 hover:text-primary hover:bg-primary/10' ?>">
+                <div class="flex items-center">
+                    <i data-lucide="settings" class="w-5 h-5 shrink-0 <?= $manajemenActive ? 'text-primary' : 'text-slate-400 group-hover:text-primary' ?>"></i>
+                    <span class="ml-3 whitespace-nowrap overflow-hidden transition-all duration-300" :class="sidebarCollapsed ? 'lg:opacity-0 lg:w-0 lg:ml-0' : 'opacity-100'">Manajemen</span>
+                </div>
+                <i data-lucide="chevron-down" class="w-4 h-4 shrink-0 transition-transform duration-200 overflow-hidden" :class="[open ? 'rotate-180' : '', sidebarCollapsed ? 'lg:hidden' : '']"></i>
+            </button>
+            <div x-show="open && !sidebarCollapsed" x-cloak
+                x-transition:enter="transition ease-out duration-150"
+                x-transition:enter-start="opacity-0 -translate-y-1"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 -translate-y-1"
+                class="ml-4 mt-1 space-y-0.5 border-l-2 border-slate-200 pl-3">
+                <a href="<?= base_url('users') ?>"
+                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('users') ?>">
+                    User
+                </a>
+                <a href="<?= base_url('periods') ?>"
+                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('periods') ?>">
+                    Periode
+                </a>
+            </div>
         </li>
         <?php endif; ?>
 
@@ -272,8 +299,8 @@
         </li>
         <?php endif; ?>
 
-        <!-- ==================== PENGGUNAAN DANA (Admin only) ==================== -->
-        <?php if (in_array($role, ['admin'])): ?>
+        <!-- ==================== PENGGUNAAN DANA ==================== -->
+        <?php if (in_array($role, ['admin', 'prodi', 'asesor'])): ?>
         <li>
             <a href="<?= base_url('funds') ?>" class="group flex py-2.5 px-3 rounded-lg font-medium transition-colors <?= $isActive('funds') ?>">
                 <i data-lucide="wallet" class="w-5 h-5 shrink-0 <?= $iconColor('funds') ?>"></i>
@@ -287,7 +314,7 @@
             $pembelajaranPaths = ['courses/curriculum', 'courses/research-integration', 'courses/excellence'];
             $pembelajaranActive = $isGroupActive($pembelajaranPaths);
         ?>
-        <?php if (in_array($role, ['admin', 'prodi', 'dosen'])): ?>
+        <?php if (in_array($role, ['admin', 'prodi', 'dosen', 'asesor'])): ?>
         <li x-data="{ open: <?= $pembelajaranActive ? 'true' : 'false' ?> }">
             <button @click="open = !open"
                 class="group w-full flex items-center justify-between py-2.5 px-3 rounded-lg font-medium transition-colors <?= $pembelajaranActive ? 'text-primary' : 'text-slate-500 hover:text-primary hover:bg-primary/10' ?>">
@@ -323,7 +350,7 @@
             $penelitianPaths = ['researches/collaboration', 'researches/references'];
             $penelitianActive = $isGroupActive($penelitianPaths);
         ?>
-        <?php if (in_array($role, ['admin', 'dosen'])): ?>
+        <?php if (in_array($role, ['admin', 'prodi', 'dosen', 'asesor'])): ?>
         <li x-data="{ open: <?= $penelitianActive ? 'true' : 'false' ?> }">
             <button @click="open = !open"
                 class="group w-full flex items-center justify-between py-2.5 px-3 rounded-lg font-medium transition-colors <?= $penelitianActive ? 'text-primary' : 'text-slate-500 hover:text-primary hover:bg-primary/10' ?>">
@@ -355,7 +382,7 @@
             $pengabdianPaths = ['community-services/collaboration'];
             $pengabdianActive = $isGroupActive($pengabdianPaths);
         ?>
-        <?php if (in_array($role, ['admin', 'dosen'])): ?>
+        <?php if (in_array($role, ['admin', 'prodi', 'dosen', 'asesor'])): ?>
         <li x-data="{ open: <?= $pengabdianActive ? 'true' : 'false' ?> }">
             <button @click="open = !open"
                 class="group w-full flex items-center justify-between py-2.5 px-3 rounded-lg font-medium transition-colors <?= $pengabdianActive ? 'text-primary' : 'text-slate-500 hover:text-primary hover:bg-primary/10' ?>">
@@ -512,4 +539,5 @@
         <?php endif; ?>
 
     </ul>
+    </div>
 </div>

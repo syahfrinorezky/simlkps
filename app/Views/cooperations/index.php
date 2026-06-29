@@ -192,6 +192,9 @@
         </div>
     <?php endif; ?>
 
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <?php
             $formAction = base_url('cooperations/education');
@@ -752,6 +755,8 @@
             </form>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>

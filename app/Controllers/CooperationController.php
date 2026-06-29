@@ -23,7 +23,7 @@ class CooperationController extends BaseController
     private function checkAuth()
     {
         $role = session()->get('userRole');
-        if (!$role || $role !== 'admin') {
+        if (!$role || !in_array($role, ['admin', 'prodi'])) {
             return false;
         }
         return true;
@@ -71,19 +71,10 @@ class CooperationController extends BaseController
         $periodId = $this->request->getVar('period_id');
         $search = $this->request->getVar('search');
 
-        $periods = $this->periodModel->findAll();
-        
-        if (empty($periodId) && !empty($periods)) {
-            foreach ($periods as $p) {
-                if ($p['status'] === 'active') {
-                    $periodId = $p['id'];
-                    break;
-                }
-            }
-            if (empty($periodId)) {
-                $periodId = $periods[0]['id'];
-            }
-        }
+        $lkpsService = new \App\Services\LkpsService();
+        $activeData = $lkpsService->resolveActivePeriod($periodId);
+        $periodId = $activeData['activePeriodId'];
+        $periods = $activeData['periods'];
 
         $cooperations = $this->cooperationModel->getCooperations($jenis, $periodId, $search)->findAll();
 

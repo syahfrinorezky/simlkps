@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\PeriodModel;
 
-class LecturerService
+class LkpsService
 {
     private PeriodModel $periodModel;
 
@@ -49,20 +49,21 @@ class LecturerService
         return ['periods' => $periods, 'activePeriodId' => $activePeriodId];
     }
 
-    public function buildFilters(array $request): array
+    public function getYears(?int $periodId, array $periods): array
     {
-        return array_filter([
-            'search'           => $request['search'] ?? '',
-            'jabatan_akademik' => $request['jabatan_akademik'] ?? '',
-            'tingkat'          => $request['tingkat'] ?? '',
-            'sumber_dana'      => $request['sumber_dana'] ?? '',
-            'jenis_publikasi'  => $request['jenis_publikasi'] ?? '',
-            'kategori'         => $request['kategori'] ?? '',
-            'semester'         => $request['semester'] ?? '',
-            'tahun'            => $request['tahun'] ?? '',
-            'is_dtps'          => $request['is_dtps'] ?? '',
-            'status_komersialisasi' => $request['status_komersialisasi'] ?? '',
-        ], fn($v) => $v !== '');
+        $activePeriod = $periodId
+            ? (array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null)
+            : null;
+        $tsYear = (int) date('Y');
+        if ($activePeriod) {
+            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
+        }
+
+        return [
+            'ts'  => $tsYear,
+            'ts1' => $tsYear - 1,
+            'ts2' => $tsYear - 2,
+        ];
     }
 
     public function generateUuid(): string
@@ -75,31 +76,5 @@ class LecturerService
             mt_rand(0, 0x3fff) | 0x8000,
             mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
         );
-    }
-
-    public function uploadFile(array $file, string $subDir = 'documents'): ?string
-    {
-        if (!$file || $file['error'] !== 0) {
-            return null;
-        }
-
-        $uploadPath = ROOTPATH . 'public/uploads/' . $subDir;
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
-
-        $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $fileName = $this->generateUuid() . '.' . $ext;
-
-        move_uploaded_file($file['tmp_name'], $uploadPath . '/' . $fileName);
-
-        return 'uploads/' . $subDir . '/' . $fileName;
-    }
-
-    public function deleteFile(?string $path): void
-    {
-        if ($path && file_exists(ROOTPATH . 'public/' . $path)) {
-            unlink(ROOTPATH . 'public/' . $path);
-        }
     }
 }

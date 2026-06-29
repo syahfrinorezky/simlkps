@@ -158,6 +158,17 @@ class LecturerController extends BaseController
         $pager       = $this->supervisionModel->pager;
         $allLecturers = $this->lecturerModel->where('status_dosen', 'tetap')->orderBy('nama')->findAll();
 
+        $activePeriod = array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null;
+        $tsYear = date('Y');
+        if ($activePeriod) {
+            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
+        }
+        $years = [
+            'ts'  => $tsYear,
+            'ts1' => $tsYear - 1,
+            'ts2' => $tsYear - 2,
+        ];
+
         return view('lecturers/supervisor', [
             'title'        => 'Pembimbing Tugas Akhir',
             'periods'      => $periods,
@@ -167,6 +178,7 @@ class LecturerController extends BaseController
             'supervisions' => $supervisions,
             'pager'        => $pager,
             'allLecturers' => $allLecturers,
+            'years'        => $years,
         ]);
     }
 
@@ -204,7 +216,8 @@ class LecturerController extends BaseController
             return redirect()->back()->with('error', 'Gagal menyimpan data bimbingan.')->withInput();
         }
 
-        return redirect()->to('lecturers/supervisor')->with('success', 'Bimbingan berhasil disimpan.');
+        $periodId = $post['period_id'] ?? '';
+        return redirect()->to('lecturers/supervisor' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Bimbingan berhasil disimpan.');
     }
 
     public function updateSupervisor(string $id)
@@ -236,16 +249,19 @@ class LecturerController extends BaseController
         
         $this->supervisionModel->update($id, $data);
 
-        return redirect()->to('lecturers/supervisor')->with('success', 'Bimbingan berhasil diperbarui.');
+        $periodId = $post['period_id'] ?? '';
+        return redirect()->to('lecturers/supervisor' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Bimbingan berhasil diperbarui.');
     }
 
     public function deleteSupervisor(string $id)
     {
         if (!$this->checkAuth(['admin', 'prodi'])) return $this->denyAccess();
 
+        $supervision = $this->supervisionModel->find($id);
+        $periodId = $supervision ? $supervision['period_id'] : '';
         $this->supervisionModel->delete($id);
 
-        return redirect()->to('lecturers/supervisor')->with('success', 'Data berhasil dihapus.');
+        return redirect()->to('lecturers/supervisor' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Data berhasil dihapus.');
     }
 
     public function showSupervisor(string $id)
@@ -471,7 +487,8 @@ class LecturerController extends BaseController
             return redirect()->back()->with('error', 'Gagal menyimpan data EWMP.')->withInput();
         }
 
-        return redirect()->to('lecturers/workload')->with('success', 'Data EWMP berhasil disimpan.');
+        $periodId = $post['period_id'] ?? '';
+        return redirect()->to('lecturers/workload' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Data EWMP berhasil disimpan.');
     }
 
     public function updateWorkload(string $id)
@@ -510,16 +527,19 @@ class LecturerController extends BaseController
         
         $this->workloadModel->update($id, $data);
 
-        return redirect()->to('lecturers/workload')->with('success', 'Data EWMP berhasil diperbarui.');
+        $periodId = $post['period_id'] ?? '';
+        return redirect()->to('lecturers/workload' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Data EWMP berhasil diperbarui.');
     }
 
     public function deleteWorkload(string $id)
     {
         if (!$this->checkAuth(['admin', 'prodi'])) return $this->denyAccess();
 
+        $workload = $this->workloadModel->find($id);
+        $periodId = $workload ? $workload['period_id'] : '';
         $this->workloadModel->delete($id);
 
-        return redirect()->to('lecturers/workload')->with('success', 'Data berhasil dihapus.');
+        return redirect()->to('lecturers/workload' . ($periodId ? '?period_id=' . $periodId : ''))->with('success', 'Data berhasil dihapus.');
     }
 
     public function showWorkload(string $id)

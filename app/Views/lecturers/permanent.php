@@ -109,7 +109,7 @@
                     placeholder="Cari nama, NIDN/NIDK, bidang keahlian..."
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
             </div>
-            <select name="jabatan_akademik"
+            <select onchange="this.form.submit()" name="jabatan_akademik"
                 class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <option value="">Semua Jabatan</option>
                 <option value="tenaga_pengajar" <?= ($filters['jabatan_akademik'] ?? '') === 'tenaga_pengajar' ? 'selected' : '' ?>>Tenaga Pengajar</option>
@@ -118,16 +118,13 @@
                 <option value="lektor_kepala" <?= ($filters['jabatan_akademik'] ?? '') === 'lektor_kepala' ? 'selected' : '' ?>>Lektor Kepala</option>
                 <option value="guru_besar" <?= ($filters['jabatan_akademik'] ?? '') === 'guru_besar' ? 'selected' : '' ?>>Guru Besar</option>
             </select>
-            <select name="is_dtps"
+            <select onchange="this.form.submit()" name="is_dtps"
                 class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <option value="">Semua Status</option>
                 <option value="1" <?= ($filters['is_dtps'] ?? '') === '1' ? 'selected' : '' ?>>DTPS</option>
                 <option value="0" <?= ($filters['is_dtps'] ?? '') === '0' ? 'selected' : '' ?>>Non-DTPS</option>
             </select>
-            <button type="submit"
-                class="col-span-2 sm:w-auto px-4 py-2 bg-primary self-start sm:self-auto hover:bg-primary/95 text-white text-sm font-semibold rounded-xl transition-all cursor-pointer">
-                Filter
-            </button>
+            
         </form>
     </div>
 
@@ -275,7 +272,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Kesesuaian Kompetensi</label>
-                            <select name="kesesuaian_kompetensi" x-model="form.kesesuaian_kompetensi" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="kesesuaian_kompetensi" x-model="form.kesesuaian_kompetensi" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih</option>
                                 <option value="sesuai">Sesuai</option>
                                 <option value="tidak_sesuai">Tidak Sesuai</option>
@@ -283,7 +280,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Jabatan Akademik</label>
-                            <select name="jabatan_akademik" x-model="form.jabatan_akademik"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="jabatan_akademik" x-model="form.jabatan_akademik"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih Jabatan</option>
                                 <option value="tenaga_pengajar">Tenaga Pengajar</option>
                                 <option value="asisten_ahli">Asisten Ahli</option>
@@ -303,7 +300,7 @@
                     <div class="border-t border-slate-100 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Sertifikat Pendidik</label>
-                            <select name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="1">Punya</option>
                                 <option value="0">Tidak Punya</option>
                             </select>
