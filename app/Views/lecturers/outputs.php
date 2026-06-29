@@ -90,12 +90,15 @@
     </div>
 
     <!-- Filter -->
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <form method="GET" action="<?= base_url('lecturers/outputs') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
-            <select name="period_id" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
+            <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <?php foreach ($periods as $p): ?><option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?></option><?php endforeach; ?>
             </select>
-            <select name="kategori" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
+            <select onchange="this.form.submit()" name="kategori" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <option value="">Semua Kategori</option>
                 <?php foreach ($kategoriLabels as $value => $label): ?>
                 <option value="<?= $value ?>" <?= ($filters['kategori'] ?? '') === $value ? 'selected' : '' ?>><?= $label ?></option>
@@ -105,7 +108,6 @@
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                 <input type="text" name="search" value="<?= esc($filters['search'] ?? '') ?>" placeholder="Cari judul luaran..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
             </div>
-            <button type="submit" class="col-span-2 sm:w-auto px-4 py-2 bg-primary self-start sm:self-auto hover:bg-primary/95 text-white text-sm font-semibold rounded-xl transition-all cursor-pointer">Filter</button>
         </form>
     </div>
 
@@ -194,7 +196,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Kategori Luaran</label>
-                            <select name="kategori" x-model="form.kategori"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="kategori" x-model="form.kategori"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih Kategori</option>
                                 <?php foreach ($kategoriLabels as $value => $label): ?>
                                 <option value="<?= $value ?>"><?= $label ?></option>
@@ -234,6 +236,8 @@
             </div>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>

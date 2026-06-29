@@ -99,6 +99,9 @@
         </div>
     <?php endif; ?>
 
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <form action="<?= base_url('community-services/collaboration') ?>" method="get" class="flex flex-col sm:flex-row items-center gap-3 w-full">
             <div class="w-full sm:w-60">
@@ -247,6 +250,8 @@
             </form>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>

@@ -2,6 +2,10 @@
 <?= $this->section('title') ?>Publikasi Ilmiah DTPS<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php if (empty($periods)): ?>
+    <?= $this->include('components/no_periods') ?>
+<?php else: ?>
+
 <div class="space-y-6" x-data="{
     detailOpen: false,
     detailData: {},
@@ -240,7 +244,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Jenis / Kategori Publikasi</label>
-                        <select name="kategori_publikasi" x-model="form.kategori_publikasi"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                        <select onchange="this.form.submit()" name="kategori_publikasi" x-model="form.kategori_publikasi"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                             <option value="">Pilih Jenis</option>
                             <?php foreach ($jenisLabels as $value => $label): ?>
                             <option value="<?= $value ?>"><?= $label ?></option>
@@ -262,7 +266,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Tingkat</label>
-                            <select name="tingkat" x-model="form.tingkat" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="tingkat" x-model="form.tingkat" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="lokal">Lokal / Wilayah</option>
                                 <option value="nasional">Nasional</option>
                                 <option value="internasional">Internasional</option>
@@ -303,4 +307,5 @@
     </div>
 
 </div>
+<?php endif; // end no_periods guard ?>
 <?= $this->endSection() ?>

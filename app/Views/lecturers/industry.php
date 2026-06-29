@@ -79,9 +79,12 @@
     </div>
 
     <!-- Filter -->
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <form method="GET" action="<?= base_url('lecturers/industry') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
-            <select name="period_id" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
+            <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <?php foreach ($periods as $p): ?>
                 <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?></option>
                 <?php endforeach; ?>
@@ -91,7 +94,6 @@
                 <input type="text" name="search" value="<?= esc($filters['search'] ?? '') ?>" placeholder="Cari nama, NIDK, perusahaan..."
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
             </div>
-            <button type="submit" class="col-span-2 sm:w-auto px-4 py-2 bg-primary self-start sm:self-auto hover:bg-primary/95 text-white text-sm font-semibold rounded-xl transition-all cursor-pointer">Filter</button>
         </form>
     </div>
 
@@ -244,6 +246,8 @@
             </div>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>

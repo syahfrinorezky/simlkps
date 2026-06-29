@@ -45,20 +45,12 @@ class StudentController extends BaseController
         $periodId = $this->request->getVar('period_id');
         $search = $this->request->getVar('search');
 
-        $periods = $this->periodModel->findAll();
-        $studyPrograms = $this->studyProgramModel->where('status_aktif', 1)->orderBy('nama_prodi')->findAll();
+        $lkpsService = new \App\Services\LkpsService();
+        $activeData = $lkpsService->resolveActivePeriod($periodId);
+        $periodId = $activeData['activePeriodId'];
+        $periods = $activeData['periods'];
 
-        if (empty($periodId) && !empty($periods)) {
-            foreach ($periods as $p) {
-                if ($p['status'] === 'active') {
-                    $periodId = $p['id'];
-                    break;
-                }
-            }
-            if (empty($periodId)) {
-                $periodId = $periods[0]['id'];
-            }
-        }
+        $studyPrograms = $this->studyProgramModel->where('status_aktif', 1)->orderBy('nama_prodi')->findAll();
 
         $admissions = [];
         $foreigns = [];
@@ -122,6 +114,17 @@ class StudentController extends BaseController
             ];
         }
 
+        $activePeriod = array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null;
+        $tsYear = date('Y');
+        if ($activePeriod) {
+            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
+        }
+        $years = [
+            'ts'  => $tsYear,
+            'ts1' => $tsYear - 1,
+            'ts2' => $tsYear - 2,
+        ];
+
         return view('students/index', [
             'title' => $tab === 'admission' ? 'Seleksi Mahasiswa' : 'Mahasiswa Asing',
             'tab' => $tab,
@@ -131,7 +134,8 @@ class StudentController extends BaseController
             'search' => $search,
             'admissions' => $admissions,
             'foreigns' => $foreigns,
-            'stats' => $stats
+            'stats' => $stats,
+            'years' => $years
         ]);
     }
 

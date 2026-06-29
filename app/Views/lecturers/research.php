@@ -2,6 +2,10 @@
 <?= $this->section('title') ?>Penelitian DTPS<?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php if (empty($periods)): ?>
+    <?= $this->include('components/no_periods') ?>
+<?php else: ?>
+
 <div class="space-y-6" x-data="{
     detailOpen: false,
     detailData: {},
@@ -245,7 +249,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="sm:col-span-2">
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Sumber Dana</label>
-                            <select name="sumber_dana" x-model="form.sumber_dana" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="sumber_dana" x-model="form.sumber_dana" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="pt_mandiri">a) PT Mandiri</option>
                                 <option value="lembaga_dalam_negeri">b) Lembaga Dalam Negeri (Non-PT)</option>
                                 <option value="lembaga_luar_negeri">c) Lembaga Luar Negeri</option>
@@ -290,4 +294,5 @@
     </div>
 
 </div>
+<?php endif; // end no_periods guard ?>
 <?= $this->endSection() ?>

@@ -17,19 +17,36 @@ class LecturerService
     {
         $periods = $this->periodModel->orderBy('tahun_akademik', 'DESC')->findAll();
 
+        // If no explicit period_id from URL, always default to current academic year
         if (empty($periodId) && !empty($periods)) {
+            $currentYear  = (int) date('Y');
+            $currentMonth = (int) date('m');
+            $expectedTahunAkademik = $currentMonth >= 7
+                ? $currentYear . '/' . ($currentYear + 1)
+                : ($currentYear - 1) . '/' . $currentYear;
+
             foreach ($periods as $p) {
-                if ($p['status'] === 'active') {
+                if ($p['tahun_akademik'] === $expectedTahunAkademik) {
                     $periodId = $p['id'];
                     break;
                 }
             }
+
+            // Fallback: first period in list if current year not found in DB
             if (empty($periodId)) {
                 $periodId = $periods[0]['id'];
             }
         }
 
-        return ['periods' => $periods, 'activePeriodId' => (int) $periodId];
+        // Store explicit selection in session for cross-tab consistency
+        if (!empty($periodId)) {
+            session()->set('active_period_id', (int) $periodId);
+        }
+
+        // Return null (not 0) when no periods exist to prevent FK constraint errors
+        $activePeriodId = !empty($periodId) ? (int) $periodId : null;
+
+        return ['periods' => $periods, 'activePeriodId' => $activePeriodId];
     }
 
     public function buildFilters(array $request): array

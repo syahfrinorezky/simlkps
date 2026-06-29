@@ -87,9 +87,12 @@
     </div>
 
     <!-- Filter -->
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <form method="GET" action="<?= base_url('lecturers/non-permanent') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
-            <select name="period_id" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
+            <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <?php foreach ($periods as $p): ?>
                 <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?> (<?= $p['tahun_akademik'] ?>)</option>
                 <?php endforeach; ?>
@@ -99,7 +102,6 @@
                 <input type="text" name="search" value="<?= esc($filters['search'] ?? '') ?>" placeholder="Cari nama, NIDN/NIDK, bidang keahlian..."
                     class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
             </div>
-            <button type="submit" class="col-span-2 sm:w-auto px-4 py-2 bg-primary self-start sm:self-auto hover:bg-primary/95 text-white text-sm font-semibold rounded-xl transition-all cursor-pointer">Filter</button>
         </form>
     </div>
 
@@ -219,7 +221,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Jabatan Akademik</label>
-                            <select name="jabatan_akademik" x-model="form.jabatan_akademik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="jabatan_akademik" x-model="form.jabatan_akademik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih</option>
                                 <option value="tenaga_pengajar">Tenaga Pengajar</option>
                                 <option value="asisten_ahli">Asisten Ahli</option>
@@ -229,7 +231,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Sertifikat Pendidik</label>
-                            <select name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select onchange="this.form.submit()" name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="1">Punya</option>
                                 <option value="0">Tidak Punya</option>
                             </select>
@@ -248,7 +250,7 @@
 
                     <div>
                         <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Kesesuaian Bidang dengan MK</label>
-                        <select name="kesesuaian_bidang" x-model="form.kesesuaian_bidang" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                        <select onchange="this.form.submit()" name="kesesuaian_bidang" x-model="form.kesesuaian_bidang" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                             <option value="">Pilih</option>
                             <option value="sesuai">Sesuai</option>
                             <option value="tidak_sesuai">Tidak Sesuai</option>
@@ -282,6 +284,8 @@
             </div>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>

@@ -8,6 +8,6 @@ class PeriodModel extends Model
 {
     protected $table = 'reporting_periods';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['nama_periode', 'tahun_akademik', 'status'];
+    protected $allowedFields = ['nama_periode', 'tahun_akademik'];
     protected $useTimestamps = true;
 }

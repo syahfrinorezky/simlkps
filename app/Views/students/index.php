@@ -326,6 +326,9 @@
     <?php endif; ?>
 
     <!-- Filter and Search Bar -->
+    <?php if (empty($periods)): ?>
+        <?= $this->include('components/no_periods') ?>
+    <?php else: ?>
     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <form action="<?= base_url('students') ?>" method="get" class="flex flex-col sm:flex-row items-center gap-3 w-full">
             <input type="hidden" name="tab" :value="activeTab">
@@ -976,6 +979,8 @@
             </div>
         </div>
     </div>
+
+<?php endif; // end no_periods guard ?>
 
 </div>
 <?= $this->endSection() ?>
