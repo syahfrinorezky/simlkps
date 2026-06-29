@@ -171,7 +171,8 @@
         <?php
             $dosenPaths = ['lecturers/permanent', 'lecturers/supervisor', 'lecturers/non-permanent', 'lecturers/industry',
                            'lecturers/workload', 'lecturers/recognition', 'lecturers/research-performance',
-                           'lecturers/community-service', 'lecturers/publications', 'lecturers/hki'];
+                           'lecturers/community-service', 'lecturers/publications/scientific', 'lecturers/publications/creative-works',
+                           'lecturers/hki/industry-products', 'lecturers/outputs'];
             $dosenActive = $isGroupActive($dosenPaths);
         ?>
         <?php if (in_array($role, ['admin', 'prodi', 'dosen'])): ?>
@@ -250,38 +251,22 @@
                     class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/publications/scientific') ?>">
                     Publikasi Ilmiah
                 </a>
-                <a href="<?= base_url('lecturers/publications/presentations') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/publications/presentations') ?>">
-                    Presentasi Ilmiah
-                </a>
                 <a href="<?= base_url('lecturers/publications/creative-works') ?>"
                     class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/publications/creative-works') ?>">
-                    Sitasi Karya Ilmiah
+                    Sitasi
                 </a>
 
-                <!-- Sub-heading Luaran HKI -->
+                <!-- Sub-heading Luaran -->
                 <div class="px-2 pt-2 pb-0.5">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Luaran HKI</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Luaran</span>
                 </div>
                 <a href="<?= base_url('lecturers/hki/industry-products') ?>"
                     class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/hki/industry-products') ?>">
-                    Produk Adopsi Industri
+                    Produk/Jasa
                 </a>
-                <a href="<?= base_url('lecturers/hki/patents') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/hki/patents') ?>">
-                    HKI Paten
-                </a>
-                <a href="<?= base_url('lecturers/hki/copyright') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/hki/copyright') ?>">
-                    HKI Hak Cipta
-                </a>
-                <a href="<?= base_url('lecturers/hki/technology') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/hki/technology') ?>">
-                    Teknologi Tepat Guna
-                </a>
-                <a href="<?= base_url('lecturers/hki/books') ?>"
-                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/hki/books') ?>">
-                    Buku Ber-ISBN
+                <a href="<?= base_url('lecturers/outputs') ?>"
+                    class="group flex items-center py-2 px-2 rounded-lg text-sm font-medium transition-colors <?= $isActive('lecturers/outputs') ?>">
+                    Luaran Penelitian/PkM
                 </a>
             </div>
         </li>
