@@ -25,6 +25,13 @@ $routes->group('users', ['filter' => 'auth'], function ($routes) {
     $routes->get('purge/(:num)', 'UserController::purge/$1');
 });
 
+$routes->group('periods', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'PeriodController::index');
+    $routes->post('store', 'PeriodController::store');
+    $routes->post('update/(:num)', 'PeriodController::update/$1');
+    $routes->get('delete/(:num)', 'PeriodController::delete/$1');
+});
+
 $routes->group('cooperations', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('/', 'CooperationController::index');
     $routes->get('education', 'CooperationController::education');
