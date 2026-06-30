@@ -13,6 +13,6 @@ class LearningIntegrationModel extends Model
     protected $useTimestamps    = true;
     protected $allowedFields    = [
         'id', 'period_id', 'judul_penelitian_pkm', 'nama_dosen',
-        'course_id', 'bentuk_integrasi', 'tahun'
+        'nama_mk', 'bentuk_integrasi', 'tahun'
     ];
 }
