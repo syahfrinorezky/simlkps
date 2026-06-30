@@ -32,40 +32,7 @@ class FundController extends BaseController
         return in_array($role, ['admin', 'prodi']);
     }
 
-    private function initRows(int $periodId)
-    {
-        $count = $this->fundUsageModel->where('period_id', $periodId)->countAllResults();
-        if ($count === 0) {
-            $predefined = [
-                ['kategori' => 'Biaya Operasional Pendidikan', 'jenis_penggunaan' => 'Biaya Dosen (Gaji, Honor)'],
-                ['kategori' => 'Biaya Operasional Pendidikan', 'jenis_penggunaan' => 'Biaya Tenaga Kependidikan (Gaji, Honor)'],
-                ['kategori' => 'Biaya Operasional Pendidikan', 'jenis_penggunaan' => 'Biaya Operasional Pembelajaran (Bahan dan Peralatan Habis Pakai)'],
-                ['kategori' => 'Biaya Operasional Pendidikan', 'jenis_penggunaan' => 'Biaya Operasional Tidak Langsung'],
-                ['kategori' => 'Biaya operasional kemahasiswaan', 'jenis_penggunaan' => 'Biaya operasional kemahasiswaan'],
-                ['kategori' => 'Biaya Penelitian', 'jenis_penggunaan' => 'Biaya Penelitian'],
-                ['kategori' => 'Biaya PkM', 'jenis_penggunaan' => 'Biaya PkM'],
-                ['kategori' => 'Biaya Investasi SDM', 'jenis_penggunaan' => 'Biaya Investasi SDM'],
-                ['kategori' => 'Biaya Investasi Sarana', 'jenis_penggunaan' => 'Biaya Investasi Sarana'],
-                ['kategori' => 'Biaya Investasi Prasarana', 'jenis_penggunaan' => 'Biaya Investasi Prasarana'],
-            ];
-            foreach ($predefined as $p) {
-                $this->fundUsageModel->insert([
-                    'id' => $this->lkpsService->generateUuid(),
-                    'period_id' => $periodId,
-                    'kategori' => $p['kategori'],
-                    'jenis_penggunaan' => $p['jenis_penggunaan'],
-                    'upps_ts_2' => 0.00,
-                    'upps_ts_1' => 0.00,
-                    'upps_ts' => 0.00,
-                    'upps_rata_rata' => 0.00,
-                    'ps_ts_2' => 0.00,
-                    'ps_ts_1' => 0.00,
-                    'ps_ts' => 0.00,
-                    'ps_rata_rata' => 0.00,
-                ]);
-            }
-        }
-    }
+
 
     public function index()
     {
@@ -93,20 +60,16 @@ class FundController extends BaseController
             ]);
         }
 
-        // Auto init rows if empty
-        $this->initRows($periodId);
+
 
         $years = $this->lkpsService->getYears($periodId, $periods);
 
         $query = $this->fundUsageModel->where('period_id', $periodId);
         if (!empty($search)) {
-            $query->groupStart()
-                ->like('jenis_penggunaan', $search)
-                ->orLike('kategori', $search)
-                ->groupEnd();
+            $query->like('jenis_penggunaan', $search);
         }
 
-        $funds = $query->orderBy('kategori', 'ASC')->orderBy('jenis_penggunaan', 'ASC')->findAll();
+        $funds = $query->orderBy('jenis_penggunaan', 'ASC')->findAll();
 
         return view('funds/index', [
             'title' => 'Penggunaan Dana',
@@ -128,7 +91,6 @@ class FundController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'kategori' => 'required|min_length[3]|max_length[100]',
             'jenis_penggunaan' => 'required|min_length[3]|max_length[255]',
             'upps_ts_2' => 'required|numeric|greater_than_equal_to[0]',
             'upps_ts_1' => 'required|numeric|greater_than_equal_to[0]',
@@ -155,7 +117,6 @@ class FundController extends BaseController
         $this->fundUsageModel->insert([
             'id' => $this->lkpsService->generateUuid(),
             'period_id' => $this->request->getPost('period_id'),
-            'kategori' => $this->request->getPost('kategori'),
             'jenis_penggunaan' => $this->request->getPost('jenis_penggunaan'),
             'upps_ts_2' => $upps_ts_2,
             'upps_ts_1' => $upps_ts_1,
@@ -189,7 +150,6 @@ class FundController extends BaseController
         }
 
         $rules = [
-            'kategori' => 'required|min_length[3]|max_length[100]',
             'jenis_penggunaan' => 'required|min_length[3]|max_length[255]',
             'upps_ts_2' => 'required|numeric|greater_than_equal_to[0]',
             'upps_ts_1' => 'required|numeric|greater_than_equal_to[0]',
@@ -214,7 +174,6 @@ class FundController extends BaseController
         $ps_rata_rata = ($ps_ts_2 + $ps_ts_1 + $ps_ts) / 3;
 
         $this->fundUsageModel->update($id, [
-            'kategori' => $this->request->getPost('kategori'),
             'jenis_penggunaan' => $this->request->getPost('jenis_penggunaan'),
             'upps_ts_2' => $upps_ts_2,
             'upps_ts_1' => $upps_ts_1,
