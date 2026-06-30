@@ -13,14 +13,14 @@
     formAction: '',
     form: {
         judul_hki: '', kategori: '',
-        tahun: new Date().getFullYear()
+        tahun: new Date().getFullYear(), keterangan: ''
     },
     openAdd() {
         this.modalTitle = 'Tambah Luaran';
         this.formAction = '<?= base_url('lecturers/outputs/store') ?>';
         this.form = {
             judul_hki: '', kategori: '',
-            tahun: new Date().getFullYear()
+            tahun: new Date().getFullYear(), keterangan: ''
         };
         this.modalOpen = true;
     },
@@ -96,7 +96,7 @@
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <form method="GET" action="<?= base_url('lecturers/outputs') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
             <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
-                <?php foreach ($periods as $p): ?><option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?></option><?php endforeach; ?>
+                <?php foreach ($periods as $p): ?><option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?></option><?php endforeach; ?>
             </select>
             <select onchange="this.form.submit()" name="kategori" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <option value="">Semua Kategori</option>
@@ -132,6 +132,7 @@
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Judul HKI / Buku / Teknologi Tepat Guna</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Kategori Luaran</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">Tahun</th>
+                        <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Keterangan</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-24 text-center whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
@@ -143,6 +144,7 @@
                         <td class="p-4 text-slate-800 font-semibold max-w-[350px]"><?= esc($o['judul_hki']) ?></td>
                         <td class="p-4"><span class="text-xs font-semibold px-2 py-0.5 rounded-full <?= $katCls ?>"><?= $kategoriLabels[$o['kategori']] ?? $o['kategori'] ?></span></td>
                         <td class="p-4 text-center text-slate-600"><?= $o['tahun'] ?></td>
+                        <td class="p-4 text-slate-600"><?= esc($o['keterangan']) ?></td>
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <?php if (in_array(session()->get('userRole'), ['admin', 'prodi', 'dosen'])): ?>
@@ -196,7 +198,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Kategori Luaran</label>
-                            <select onchange="this.form.submit()" name="kategori" x-model="form.kategori"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select name="kategori" x-model="form.kategori"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih Kategori</option>
                                 <?php foreach ($kategoriLabels as $value => $label): ?>
                                 <option value="<?= $value ?>"><?= $label ?></option>
@@ -207,6 +209,10 @@
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Tahun</label>
                             <input type="number" name="tahun" x-model="form.tahun"  min="2000" max="2099" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all">
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Keterangan</label>
+                        <textarea name="keterangan" x-model="form.keterangan" rows="3" placeholder="Misal: Nomor HKI, Penerbit, ISBN, dsb..." class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all"></textarea>
                     </div>
                 </div>
 
