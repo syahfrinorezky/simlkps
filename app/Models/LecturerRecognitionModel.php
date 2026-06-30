@@ -13,12 +13,12 @@ class LecturerRecognitionModel extends Model
     protected $useTimestamps    = true;
     protected $allowedFields    = [
         'id', 'period_id', 'lecturer_id',
-        'nama_rekognisi', 'tingkat', 'penyelenggara', 'tahun', 'dokumen_bukti',
+        'nama_rekognisi', 'tingkat', 'tahun', 'dokumen_bukti',
     ];
 
     public function getWithLecturer(int $periodId, array $filters = [])
     {
-        $builder = $this->select('lecturer_recognitions.*, lecturers.nama, lecturers.nidn')
+        $builder = $this->select('lecturer_recognitions.*, lecturers.nama, lecturers.nidn, lecturers.bidang_keahlian')
             ->join('lecturers', 'lecturers.id = lecturer_recognitions.lecturer_id')
             ->where('lecturer_recognitions.period_id', $periodId);
 
@@ -26,7 +26,6 @@ class LecturerRecognitionModel extends Model
             $builder->groupStart()
                 ->like('lecturers.nama', $filters['search'])
                 ->orLike('lecturer_recognitions.nama_rekognisi', $filters['search'])
-                ->orLike('lecturer_recognitions.penyelenggara', $filters['search'])
                 ->groupEnd();
         }
 
