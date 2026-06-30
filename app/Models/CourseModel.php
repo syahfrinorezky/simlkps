@@ -12,7 +12,7 @@ class CourseModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'semester', 'kode_mk', 'nama_mk', 'mk_kompetensi',
+        'id', 'period_id', 'nama_mk', 'mk_kompetensi',
         'sks_kuliah', 'sks_seminar', 'sks_praktikum', 'konversi_jam',
         'cpl_sikap', 'cpl_pengetahuan', 'cpl_keterampilan_umum', 'cpl_keterampilan_khusus',
         'dokumen_rencana_pembelajaran', 'unit_penyelenggara'
