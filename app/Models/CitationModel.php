@@ -12,7 +12,7 @@ class CitationModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'lecturer_id', 'judul_artikel', 'jumlah_sitasi', 'sumber_sitasi',
+        'id', 'period_id', 'lecturer_id', 'judul_artikel', 'jumlah_sitasi',
     ];
 
     public function getWithLecturer(int $periodId, array $filters = [])
@@ -26,10 +26,6 @@ class CitationModel extends Model
                 ->like('citations.judul_artikel', $filters['search'])
                 ->orLike('lecturers.nama', $filters['search'])
                 ->groupEnd();
-        }
-
-        if (!empty($filters['sumber_sitasi'])) {
-            $builder->where('citations.sumber_sitasi', $filters['sumber_sitasi']);
         }
 
         return $builder->orderBy('citations.jumlah_sitasi', 'DESC');

@@ -13,3 +13,20 @@
  *
  * @see: https://codeigniter.com/user_guide/extending/common.html
  */
+
+if (!function_exists('format_periode')) {
+    function format_periode($nama_periode, $tahun_akademik)
+    {
+        if (empty($nama_periode)) {
+            return '';
+        }
+        if (empty($tahun_akademik)) {
+            return esc($nama_periode);
+        }
+        if (stripos($nama_periode, $tahun_akademik) !== false) {
+            return esc($nama_periode);
+        }
+        return esc($nama_periode) . ' (' . esc($tahun_akademik) . ')';
+    }
+}
+

@@ -57,13 +57,12 @@ class CourseController extends BaseController
         $query = $this->courseModel->where('period_id', $periodId);
         if (!empty($search)) {
             $query->groupStart()
-                ->like('kode_mk', $search)
-                ->orLike('nama_mk', $search)
+                ->like('nama_mk', $search)
                 ->orLike('unit_penyelenggara', $search)
                 ->groupEnd();
         }
 
-        $courses = $query->orderBy('semester', 'ASC')->orderBy('kode_mk', 'ASC')->findAll();
+        $courses = $query->orderBy('nama_mk', 'ASC')->findAll();
 
         return view('courses/curriculum', [
             'title' => 'Kurikulum Pembelajaran',
@@ -83,8 +82,6 @@ class CourseController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'semester' => 'required|numeric',
-            'kode_mk' => 'required|max_length[50]',
             'nama_mk' => 'required|max_length[255]',
             'sks_kuliah' => 'required|numeric',
             'sks_seminar' => 'required|numeric',
@@ -108,8 +105,6 @@ class CourseController extends BaseController
         $this->courseModel->insert([
             'id' => $this->lkpsService->generateUuid(),
             'period_id' => $this->request->getPost('period_id'),
-            'semester' => $this->request->getPost('semester'),
-            'kode_mk' => $this->request->getPost('kode_mk'),
             'nama_mk' => $this->request->getPost('nama_mk'),
             'mk_kompetensi' => $this->request->getPost('mk_kompetensi') ? 1 : 0,
             'sks_kuliah' => $this->request->getPost('sks_kuliah'),
@@ -146,8 +141,6 @@ class CourseController extends BaseController
         }
 
         $rules = [
-            'semester' => 'required|numeric',
-            'kode_mk' => 'required|max_length[50]',
             'nama_mk' => 'required|max_length[255]',
             'sks_kuliah' => 'required|numeric',
             'sks_seminar' => 'required|numeric',
@@ -174,8 +167,6 @@ class CourseController extends BaseController
         }
 
         $this->courseModel->update($id, [
-            'semester' => $this->request->getPost('semester'),
-            'kode_mk' => $this->request->getPost('kode_mk'),
             'nama_mk' => $this->request->getPost('nama_mk'),
             'mk_kompetensi' => $this->request->getPost('mk_kompetensi') ? 1 : 0,
             'sks_kuliah' => $this->request->getPost('sks_kuliah'),
@@ -228,30 +219,27 @@ class CourseController extends BaseController
         $periodId = $activeData['activePeriodId'];
         $periods = $activeData['periods'];
 
-        $courses = $this->courseModel->where('period_id', $periodId)->orderBy('nama_mk', 'ASC')->findAll();
 
-        $query = $this->integrationModel->select('learning_integrations.*, courses.nama_mk, courses.kode_mk')
-            ->join('courses', 'courses.id = learning_integrations.course_id', 'left')
+        $query = $this->integrationModel
             ->where('learning_integrations.period_id', $periodId);
 
         if (!empty($search)) {
             $query->groupStart()
                 ->like('learning_integrations.judul_penelitian_pkm', $search)
                 ->orLike('learning_integrations.nama_dosen', $search)
-                ->orLike('courses.nama_mk', $search)
+                ->orLike('learning_integrations.nama_mk', $search)
                 ->groupEnd();
         }
 
         $integrations = $query->orderBy('learning_integrations.tahun', 'DESC')->findAll();
 
         return view('courses/research_integration', [
-            'title' => 'Integrasi Penelitian/PkM',
-            'integrations' => $integrations,
-            'courses' => $courses,
-            'periods' => $periods,
+            'title'          => 'Integrasi Penelitian/PkM',
+            'integrations'   => $integrations,
+            'periods'        => $periods,
             'selectedPeriod' => $periodId,
-            'search' => $search,
-            'canModify' => $this->canModify(),
+            'search'         => $search,
+            'canModify'      => $this->canModify(),
         ]);
     }
 
@@ -262,29 +250,32 @@ class CourseController extends BaseController
         }
 
         $rules = [
-            'period_id' => 'required',
-            'judul_penelitian_pkm' => 'required|min_length[5]',
-            'nama_dosen' => 'required|min_length[3]|max_length[255]',
-            'course_id' => 'required',
-            'bentuk_integrasi' => 'required',
-            'tahun' => 'required|numeric',
+            'period_id'             => 'required',
+            'judul_penelitian_pkm'  => 'required|min_length[5]',
+            'nama_dosen'            => 'required|min_length[3]|max_length[255]',
+            'course_name'           => 'required|min_length[3]|max_length[255]',
+            'bentuk_integrasi'      => 'required',
+            'tahun'                 => 'required|numeric',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $periodId   = $this->request->getPost('period_id');
+        $courseName = trim($this->request->getPost('course_name') ?? '');
+
         $this->integrationModel->insert([
-            'id' => $this->lkpsService->generateUuid(),
-            'period_id' => $this->request->getPost('period_id'),
+            'id'                   => $this->lkpsService->generateUuid(),
+            'period_id'            => $periodId,
             'judul_penelitian_pkm' => $this->request->getPost('judul_penelitian_pkm'),
-            'nama_dosen' => $this->request->getPost('nama_dosen'),
-            'course_id' => $this->request->getPost('course_id'),
-            'bentuk_integrasi' => $this->request->getPost('bentuk_integrasi'),
-            'tahun' => $this->request->getPost('tahun'),
+            'nama_dosen'           => $this->request->getPost('nama_dosen'),
+            'nama_mk'              => $courseName,
+            'bentuk_integrasi'     => $this->request->getPost('bentuk_integrasi'),
+            'tahun'                => $this->request->getPost('tahun'),
         ]);
 
-        return redirect()->to('/courses/research-integration?period_id=' . $this->request->getPost('period_id'))->with('success', 'Integrasi kegiatan berhasil ditambahkan.');
+        return redirect()->to('/courses/research-integration?period_id=' . $periodId)->with('success', 'Integrasi kegiatan berhasil ditambahkan.');
     }
 
     public function showIntegration(string $id)
@@ -296,8 +287,10 @@ class CourseController extends BaseController
         if (!$data) {
             return $this->response->setJSON(['error' => 'Data tidak ditemukan.'], 404);
         }
+        $data['course_name'] = $data['nama_mk'] ?? '';
         return $this->response->setJSON($data);
     }
+
 
     public function updateIntegration(string $id)
     {
@@ -307,10 +300,10 @@ class CourseController extends BaseController
 
         $rules = [
             'judul_penelitian_pkm' => 'required|min_length[5]',
-            'nama_dosen' => 'required|min_length[3]|max_length[255]',
-            'course_id' => 'required',
-            'bentuk_integrasi' => 'required',
-            'tahun' => 'required|numeric',
+            'nama_dosen'           => 'required|min_length[3]|max_length[255]',
+            'course_name'          => 'required|min_length[3]|max_length[255]',
+            'bentuk_integrasi'     => 'required',
+            'tahun'                => 'required|numeric',
         ];
 
         if (!$this->validate($rules)) {
@@ -318,16 +311,18 @@ class CourseController extends BaseController
         }
 
         $integration = $this->integrationModel->find($id);
+        $periodId    = $integration['period_id'];
+        $courseName  = trim($this->request->getPost('course_name') ?? '');
 
         $this->integrationModel->update($id, [
             'judul_penelitian_pkm' => $this->request->getPost('judul_penelitian_pkm'),
-            'nama_dosen' => $this->request->getPost('nama_dosen'),
-            'course_id' => $this->request->getPost('course_id'),
-            'bentuk_integrasi' => $this->request->getPost('bentuk_integrasi'),
-            'tahun' => $this->request->getPost('tahun'),
+            'nama_dosen'           => $this->request->getPost('nama_dosen'),
+            'nama_mk'              => $courseName,
+            'bentuk_integrasi'     => $this->request->getPost('bentuk_integrasi'),
+            'tahun'                => $this->request->getPost('tahun'),
         ]);
 
-        return redirect()->to('/courses/research-integration?period_id=' . $integration['period_id'])->with('success', 'Integrasi kegiatan berhasil diperbarui.');
+        return redirect()->to('/courses/research-integration?period_id=' . $periodId)->with('success', 'Integrasi kegiatan berhasil diperbarui.');
     }
 
     public function deleteIntegration(string $id)
@@ -349,31 +344,7 @@ class CourseController extends BaseController
     // ==========================================
     // TABEL 5.c — Kepuasan Mahasiswa
     // ==========================================
-    private function initExcellence(int $periodId)
-    {
-        $count = $this->satisfactionModel->where('period_id', $periodId)->countAllResults();
-        if ($count === 0) {
-            $aspeks = [
-                'Keandalan (Reliability)',
-                'Daya Tanggap (Responsiveness)',
-                'Kepastian (Assurance)',
-                'Empati (Empathy)',
-                'Tangible'
-            ];
-            foreach ($aspeks as $aspek) {
-                $this->satisfactionModel->insert([
-                    'id' => $this->lkpsService->generateUuid(),
-                    'period_id' => $periodId,
-                    'aspek' => $aspek,
-                    'sangat_baik' => 0.00,
-                    'baik' => 0.00,
-                    'cukup' => 0.00,
-                    'kurang' => 0.00,
-                    'rencana_tindak_lanjut' => '',
-                ]);
-            }
-        }
-    }
+
 
     public function excellence()
     {
@@ -399,8 +370,7 @@ class CourseController extends BaseController
             ]);
         }
 
-        // Auto initialize the 5 aspects
-        $this->initExcellence($periodId);
+
 
         $query = $this->satisfactionModel->where('period_id', $periodId);
         if (!empty($search)) {

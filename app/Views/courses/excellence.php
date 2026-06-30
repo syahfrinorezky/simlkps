@@ -17,7 +17,7 @@
     baik: 0,
     cukup: 0,
     kurang: 0,
-    rencanaTindak Lanjut: '',
+    rencanaTindakLanjut: '',
     currentPage: 0,
     perPage: 10,
     totalRows: 0,
@@ -114,7 +114,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -223,6 +223,7 @@
                 </button>
             </div>
             <form :action="formAction" method="POST" class="p-6 space-y-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="period_id" :value="periodId">
                 
                 <div class="flex flex-col gap-1">

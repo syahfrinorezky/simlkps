@@ -14,7 +14,7 @@
     periodId: '<?= $selectedPeriod ?>',
     judulPenelitianPkm: '',
     namaDosen: '',
-    courseId: '',
+    courseName: '',
     bentukIntegrasi: '',
     tahun: new Date().getFullYear(),
     currentPage: 0,
@@ -41,7 +41,7 @@
         this.periodId = '<?= $selectedPeriod ?>';
         this.judulPenelitianPkm = '';
         this.namaDosen = '';
-        this.courseId = '';
+        this.courseName = '';
         this.bentukIntegrasi = '';
         this.tahun = new Date().getFullYear();
         this.modalOpen = true;
@@ -57,7 +57,7 @@
                 this.periodId = data.period_id;
                 this.judulPenelitianPkm = data.judul_penelitian_pkm;
                 this.namaDosen = data.nama_dosen;
-                this.courseId = data.course_id;
+                this.courseName = data.course_name || '';
                 this.bentukIntegrasi = data.bentuk_integrasi;
                 this.tahun = data.tahun;
                 this.loading = false;
@@ -111,7 +111,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -164,8 +164,8 @@
                                 <td class="p-4 text-slate-600 text-center font-medium"><?= $no + 1 ?></td>
                                 <td class="p-4 font-semibold text-slate-800 leading-relaxed"><?= esc($i['judul_penelitian_pkm']) ?></td>
                                 <td class="p-4 font-medium text-slate-700"><?= esc($i['nama_dosen']) ?></td>
-                                <td class="p-4 font-bold text-primary">
-                                    [<?= esc($i['kode_mk'] ?? '-') ?>] <?= esc($i['nama_mk'] ?? '-') ?>
+                                <td class="p-4 font-semibold text-slate-800">
+                                    <?= esc($i['nama_mk'] ?? '-') ?>
                                 </td>
                                 <td class="p-4 text-slate-600 leading-relaxed"><?= esc($i['bentuk_integrasi']) ?></td>
                                 <td class="p-4 text-center font-mono font-bold text-slate-700"><?= $i['tahun'] ?></td>
@@ -217,6 +217,7 @@
                 </button>
             </div>
             <form :action="formAction" method="POST" class="p-6 space-y-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="period_id" :value="periodId">
                 
                 <div class="flex flex-col gap-1">
@@ -230,13 +231,8 @@
                         <input type="text" name="nama_dosen" x-model="namaDosen" required placeholder="Nama lengkap dosen..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Mata Kuliah</label>
-                        <select name="course_id" x-model="courseId" required class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                            <option value="">Pilih Mata Kuliah</option>
-                            <?php foreach ($courses as $c): ?>
-                                <option value="<?= $c['id'] ?>">[<?= htmlspecialchars($c['kode_mk']) ?>] <?= htmlspecialchars($c['nama_mk']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label class="text-xs font-semibold text-slate-600 font-bold">Mata Kuliah *</label>
+                        <input type="text" name="course_name" x-model="courseName" required placeholder="Nama Mata Kuliah..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                     </div>
                 </div>
 

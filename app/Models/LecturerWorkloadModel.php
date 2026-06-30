@@ -12,7 +12,7 @@ class LecturerWorkloadModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'lecturer_id', 'semester',
+        'id', 'period_id', 'lecturer_id',
         'sks_pengajaran', 'sks_ps_lain_dalam_pt', 'sks_ps_luar_pt', 
         'sks_penelitian', 'sks_pkm', 'sks_penunjang', 'total_sks'
     ];
@@ -28,10 +28,6 @@ class LecturerWorkloadModel extends Model
                 ->like('lecturers.nama', $filters['search'])
                 ->orLike('lecturers.nidn', $filters['search'])
                 ->groupEnd();
-        }
-
-        if (!empty($filters['semester'])) {
-            $builder->where('lecturer_workloads.semester', $filters['semester']);
         }
 
         return $builder->orderBy('lecturers.nama', 'ASC');

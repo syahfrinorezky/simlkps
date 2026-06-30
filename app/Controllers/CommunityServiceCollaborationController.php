@@ -73,14 +73,27 @@ class CommunityServiceCollaborationController extends BaseController
             return redirect()->to('/community-services/collaboration')->with('error', 'Akses ditolak.');
         }
 
+        $students = $this->request->getPost('students');
+        $namaMahasiswa = '';
+        if (is_array($students)) {
+            $students = array_filter(array_map('trim', $students));
+            $namaMahasiswa = implode(', ', $students);
+        }
+        if (empty($namaMahasiswa)) {
+            $namaMahasiswa = trim($this->request->getPost('nama_mahasiswa') ?? '');
+        }
+
         $rules = [
             'period_id' => 'required',
             'nama_dosen' => 'required|min_length[3]|max_length[255]',
             'tema_roadmap' => 'required',
-            'nama_mahasiswa' => 'required|min_length[3]|max_length[255]',
             'judul_kegiatan' => 'required',
             'tahun' => 'required|numeric',
         ];
+
+        if (empty($namaMahasiswa)) {
+            return redirect()->back()->withInput()->with('error', 'Nama Mahasiswa wajib diisi.');
+        }
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -91,7 +104,7 @@ class CommunityServiceCollaborationController extends BaseController
             'period_id' => $this->request->getPost('period_id'),
             'nama_dosen' => $this->request->getPost('nama_dosen'),
             'tema_roadmap' => $this->request->getPost('tema_roadmap'),
-            'nama_mahasiswa' => $this->request->getPost('nama_mahasiswa'),
+            'nama_mahasiswa' => $namaMahasiswa,
             'judul_kegiatan' => $this->request->getPost('judul_kegiatan'),
             'tahun' => $this->request->getPost('tahun'),
         ]);
@@ -117,13 +130,26 @@ class CommunityServiceCollaborationController extends BaseController
             return redirect()->to('/community-services/collaboration')->with('error', 'Akses ditolak.');
         }
 
+        $students = $this->request->getPost('students');
+        $namaMahasiswa = '';
+        if (is_array($students)) {
+            $students = array_filter(array_map('trim', $students));
+            $namaMahasiswa = implode(', ', $students);
+        }
+        if (empty($namaMahasiswa)) {
+            $namaMahasiswa = trim($this->request->getPost('nama_mahasiswa') ?? '');
+        }
+
         $rules = [
             'nama_dosen' => 'required|min_length[3]|max_length[255]',
             'tema_roadmap' => 'required',
-            'nama_mahasiswa' => 'required|min_length[3]|max_length[255]',
             'judul_kegiatan' => 'required',
             'tahun' => 'required|numeric',
         ];
+
+        if (empty($namaMahasiswa)) {
+            return redirect()->back()->withInput()->with('error', 'Nama Mahasiswa wajib diisi.');
+        }
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
@@ -134,7 +160,7 @@ class CommunityServiceCollaborationController extends BaseController
         $this->communityServiceModel->update($id, [
             'nama_dosen' => $this->request->getPost('nama_dosen'),
             'tema_roadmap' => $this->request->getPost('tema_roadmap'),
-            'nama_mahasiswa' => $this->request->getPost('nama_mahasiswa'),
+            'nama_mahasiswa' => $namaMahasiswa,
             'judul_kegiatan' => $this->request->getPost('judul_kegiatan'),
             'tahun' => $this->request->getPost('tahun'),
         ]);

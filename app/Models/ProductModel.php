@@ -13,7 +13,7 @@ class ProductModel extends Model
     protected $useTimestamps    = true;
     protected $allowedFields    = [
         'id', 'period_id', 'lecturer_id', 'nama_produk', 'deskripsi',
-        'bukti_adopsi', 'nama_industri', 'alamat_industri', 'status_komersialisasi', 'tahun',
+        'status_komersialisasi', 'tahun',
     ];
 
     public function getWithLecturer(int $periodId, array $filters = [])
@@ -26,7 +26,6 @@ class ProductModel extends Model
             $builder->groupStart()
                 ->like('products.nama_produk', $filters['search'])
                 ->orLike('lecturers.nama', $filters['search'])
-                ->orLike('products.nama_industri', $filters['search'])
                 ->groupEnd();
         }
 

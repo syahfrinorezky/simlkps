@@ -86,7 +86,7 @@
         <form method="GET" action="<?= base_url('lecturers/industry') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
             <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <?php foreach ($periods as $p): ?>
-                <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?></option>
+                <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?></option>
                 <?php endforeach; ?>
             </select>
             <div class="relative col-span-2 sm:flex-1">

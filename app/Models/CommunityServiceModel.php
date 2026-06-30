@@ -12,42 +12,20 @@ class CommunityServiceModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'lecturer_id', 'judul_kegiatan',
-        'tema_roadmap', 'sumber_dana', 'jumlah_dana', 'tahun',
+        'id', 'period_id', 'sumber_dana', 'jumlah_ts2', 'jumlah_ts1', 'jumlah_ts'
     ];
 
-    public function getWithLecturer(int $periodId, array $filters = [])
+    public function getSummary(int $periodId): array
     {
-        $builder = $this->select('community_services.*, lecturers.nama, lecturers.nidn')
-            ->join('lecturers', 'lecturers.id = community_services.lecturer_id')
-            ->where('community_services.period_id', $periodId);
-
-        if (!empty($filters['search'])) {
-            $builder->groupStart()
-                ->like('community_services.judul_kegiatan', $filters['search'])
-                ->orLike('lecturers.nama', $filters['search'])
-                ->groupEnd();
+        $rows = $this->where('period_id', $periodId)->findAll();
+        $summary = [];
+        foreach ($rows as $r) {
+            $summary[$r['sumber_dana']] = [
+                'ts2' => (int) $r['jumlah_ts2'],
+                'ts1' => (int) $r['jumlah_ts1'],
+                'ts'  => (int) $r['jumlah_ts'],
+            ];
         }
-
-        if (!empty($filters['sumber_dana'])) {
-            $builder->where('community_services.sumber_dana', $filters['sumber_dana']);
-        }
-
-        if (!empty($filters['tahun'])) {
-            $builder->where('community_services.tahun', $filters['tahun']);
-        }
-
-        return $builder->orderBy('community_services.tahun', 'DESC');
-    }
-
-    public function getStats(int $periodId): array
-    {
-        $data  = $this->selectSum('jumlah_dana', 'total_dana')->where('period_id', $periodId)->first();
-        $total = $this->where('period_id', $periodId)->countAllResults();
-
-        return [
-            'total'      => $total,
-            'total_dana' => $data['total_dana'] ?? 0,
-        ];
+        return $summary;
     }
 }

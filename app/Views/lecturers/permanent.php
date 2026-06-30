@@ -52,6 +52,21 @@
                 this.$dispatch('show-toast', { type: 'error', message: 'Gagal memuat data.' });
             });
     },
+    openDetail(id) {
+        this.loading = true;
+        this.detailOpen = true;
+        fetch('<?= base_url('lecturers/permanent/show') ?>/' + id)
+            .then(res => res.json())
+            .then(data => {
+                this.detailData = data;
+                this.loading = false;
+            })
+            .catch(err => {
+                this.loading = false;
+                this.detailOpen = false;
+                this.$dispatch('show-toast', { type: 'error', message: 'Gagal memuat detail.' });
+            });
+    },
     confirmDelete(id, name) {
         this.deleteUrl = '<?= base_url('lecturers/permanent/delete') ?>/' + id;
         this.deleteOpen = true;
@@ -201,11 +216,14 @@
                         </td>
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
+                                <button @click="openDetail('<?= $lec['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-700 transition-all cursor-pointer" title="Detail">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
                                 <?php if (in_array(session()->get('userRole'), ['admin', 'prodi'])): ?>
-                                <button @click="openEdit('<?= $lec['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary transition-all cursor-pointer">
+                                <button @click="openEdit('<?= $lec['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary transition-all cursor-pointer" title="Edit">
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                 </button>
-                                <button @click="confirmDelete('<?= $lec['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-red-600 transition-all cursor-pointer">
+                                <button @click="confirmDelete('<?= $lec['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-red-600 transition-all cursor-pointer" title="Hapus">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                                 <?php endif; ?>
@@ -272,7 +290,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Kesesuaian Kompetensi</label>
-                            <select onchange="this.form.submit()" name="kesesuaian_kompetensi" x-model="form.kesesuaian_kompetensi" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select name="kesesuaian_kompetensi" x-model="form.kesesuaian_kompetensi" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih</option>
                                 <option value="sesuai">Sesuai</option>
                                 <option value="tidak_sesuai">Tidak Sesuai</option>
@@ -280,7 +298,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Jabatan Akademik</label>
-                            <select onchange="this.form.submit()" name="jabatan_akademik" x-model="form.jabatan_akademik"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select name="jabatan_akademik" x-model="form.jabatan_akademik"  class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="">Pilih Jabatan</option>
                                 <option value="tenaga_pengajar">Tenaga Pengajar</option>
                                 <option value="asisten_ahli">Asisten Ahli</option>
@@ -300,7 +318,7 @@
                     <div class="border-t border-slate-100 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Sertifikat Pendidik</label>
-                            <select onchange="this.form.submit()" name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
+                            <select name="sertifikat_pendidik" x-model="form.sertifikat_pendidik" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
                                 <option value="1">Punya</option>
                                 <option value="0">Tidak Punya</option>
                             </select>
@@ -322,6 +340,86 @@
                     <button type="submit" class="w-full sm:w-auto px-5 py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 shadow-md transition-all cursor-pointer">Simpan Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div x-show="detailOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs" x-transition x-cloak>
+        <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-100" @click.outside="detailOpen = false">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Detail Dosen Tetap</h3>
+                <button type="button" @click="detailOpen = false" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Nama Dosen</span>
+                        <span class="font-bold text-slate-800 text-base" x-text="detailData.nama || '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">NIDN / NIDK</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.nidn || '-'"></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Pendidikan S2 / Magister</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.pendidikan_magister || '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Pendidikan S3 / Doktor</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.pendidikan_doktor || '-'"></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Bidang Keahlian</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.bidang_keahlian || '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold mb-1">Kesesuaian Kompetensi</span>
+                        <span class="font-semibold uppercase text-xs px-2 py-0.5 rounded-full inline-block mt-0.5" :class="detailData.kesesuaian_kompetensi === 'sesuai' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'" x-text="detailData.kesesuaian_kompetensi === 'sesuai' ? 'Sesuai' : 'Tidak Sesuai'"></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Jabatan Akademik</span>
+                        <span class="font-semibold text-slate-700" x-text="{'tenaga_pengajar': 'Tenaga Pengajar', 'asisten_ahli': 'Asisten Ahli', 'lektor': 'Lektor', 'lektor_kepala': 'Lektor Kepala', 'guru_besar': 'Guru Besar'}[detailData.jabatan_akademik] || detailData.jabatan_akademik || '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold mb-1">Status Dosen</span>
+                        <span class="font-semibold uppercase text-xs px-2 py-0.5 rounded-full inline-block mt-0.5" :class="detailData.is_dtps == 1 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" x-text="detailData.is_dtps == 1 ? 'DTPS' : 'Non-DTPS'"></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Sertifikat Pendidik</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.sertifikat_pendidik == 1 ? 'Punya' : 'Tidak Punya'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Sertifikat Kompetensi</span>
+                        <span class="font-semibold text-slate-700" x-text="detailData.sertifikat_kompetensi || '-'"></span>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Mata Kuliah diampu</span>
+                    <span class="font-semibold text-slate-700" x-text="detailData.mata_kuliah_diampu || '-'"></span>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button @click="detailOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition">Tutup</button>
+            </div>
         </div>
     </div>
 

@@ -15,6 +15,7 @@
     namaDosen: '',
     temaRoadmap: '',
     namaMahasiswa: '',
+    students: [''],
     judulKegiatan: '',
     tahun: new Date().getFullYear(),
     currentPage: 0,
@@ -42,6 +43,7 @@
         this.namaDosen = '';
         this.temaRoadmap = '';
         this.namaMahasiswa = '';
+        this.students = [''];
         this.judulKegiatan = '';
         this.tahun = new Date().getFullYear();
         this.modalOpen = true;
@@ -58,6 +60,7 @@
                 this.namaDosen = data.nama_dosen;
                 this.temaRoadmap = data.tema_roadmap;
                 this.namaMahasiswa = data.nama_mahasiswa;
+                this.students = data.nama_mahasiswa ? data.nama_mahasiswa.split(',').map(s => s.trim()) : [''];
                 this.judulKegiatan = data.judul_kegiatan;
                 this.tahun = data.tahun;
                 this.loading = false;
@@ -111,7 +114,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -215,16 +218,28 @@
                 </button>
             </div>
             <form :action="formAction" method="POST" class="p-6 space-y-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="period_id" :value="periodId">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Nama Dosen</label>
+                        <label class="text-xs font-semibold text-slate-600 font-bold">Nama Dosen *</label>
                         <input type="text" name="nama_dosen" x-model="namaDosen" required placeholder="Nama dosen..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Nama Mahasiswa</label>
-                        <input type="text" name="nama_mahasiswa" x-model="namaMahasiswa" required placeholder="Nama mahasiswa..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-semibold text-slate-600 font-bold">Nama Mahasiswa *</label>
+                        <template x-for="(student, idx) in students" :key="idx">
+                            <div class="flex gap-2 items-center">
+                                <input type="text" name="students[]" x-model="students[idx]" required placeholder="Nama mahasiswa..." class="flex-1 bg-slate-50/50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+                                <button type="button" @click="if (students.length > 1) students.splice(idx, 1)" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors cursor-pointer" :disabled="students.length === 1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/></svg>
+                                </button>
+                            </div>
+                        </template>
+                        <button type="button" @click="students.push('')" class="self-start text-xs font-bold text-primary flex items-center gap-1 hover:underline mt-1 cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Tambah Mahasiswa
+                        </button>
                     </div>
                 </div>
 

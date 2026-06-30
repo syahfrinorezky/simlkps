@@ -12,7 +12,7 @@ class FundUsageModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'jenis_penggunaan', 'kategori',
+        'id', 'period_id', 'jenis_penggunaan',
         'upps_ts_2', 'upps_ts_1', 'upps_ts', 'upps_rata_rata',
         'ps_ts_2', 'ps_ts_1', 'ps_ts', 'ps_rata_rata'
     ];

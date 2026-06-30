@@ -592,6 +592,7 @@ class LecturerController extends BaseController
 
         $post = $this->request->getPost();
         $name = trim($post['lecturer_name'] ?? '');
+        $bidangKeahlian = trim($post['bidang_keahlian'] ?? '');
         if (empty($name)) {
             return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
         }
@@ -604,10 +605,12 @@ class LecturerController extends BaseController
                 'id' => $lecId,
                 'nama' => $name,
                 'status_dosen' => 'tetap',
-                'is_dtps' => 1
+                'is_dtps' => 1,
+                'bidang_keahlian' => $bidangKeahlian
             ]);
         } else {
             $lecId = $lec['id'];
+            $this->lecturerModel->update($lecId, ['bidang_keahlian' => $bidangKeahlian]);
         }
 
         if ($post['tingkat'] === 'wilayah') {
@@ -617,9 +620,8 @@ class LecturerController extends BaseController
         $data = array_merge($post, [
             'id' => $this->service->generateUuid(),
             'lecturer_id' => $lecId,
-            'penyelenggara' => '', // Removed field
         ]);
-        unset($data['lecturer_name']);
+        unset($data['lecturer_name'], $data['bidang_keahlian']);
 
         if (!$this->recognitionModel->insert($data)) {
             return redirect()->back()->with('error', 'Gagal menyimpan data.')->withInput();
@@ -634,6 +636,7 @@ class LecturerController extends BaseController
 
         $post = $this->request->getPost();
         $name = trim($post['lecturer_name'] ?? '');
+        $bidangKeahlian = trim($post['bidang_keahlian'] ?? '');
         if (empty($name)) {
             return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
         }
@@ -645,10 +648,12 @@ class LecturerController extends BaseController
                 'id' => $lecId,
                 'nama' => $name,
                 'status_dosen' => 'tetap',
-                'is_dtps' => 1
+                'is_dtps' => 1,
+                'bidang_keahlian' => $bidangKeahlian
             ]);
         } else {
             $lecId = $lec['id'];
+            $this->lecturerModel->update($lecId, ['bidang_keahlian' => $bidangKeahlian]);
         }
 
         if ($post['tingkat'] === 'wilayah') {
@@ -657,8 +662,7 @@ class LecturerController extends BaseController
 
         $data = $post;
         $data['lecturer_id'] = $lecId;
-        $data['penyelenggara'] = '';
-        unset($data['id'], $data['lecturer_name']);
+        unset($data['id'], $data['lecturer_name'], $data['bidang_keahlian']);
 
         $this->recognitionModel->update($id, $data);
 
@@ -678,7 +682,7 @@ class LecturerController extends BaseController
     {
         if (!$this->checkAuth()) return $this->denyAccess();
 
-        $data = $this->recognitionModel->select('lecturer_recognitions.*, lecturers.nama')
+        $data = $this->recognitionModel->select('lecturer_recognitions.*, lecturers.nama, lecturers.bidang_keahlian')
             ->join('lecturers', 'lecturers.id = lecturer_recognitions.lecturer_id')
             ->find($id);
 
@@ -700,182 +704,50 @@ class LecturerController extends BaseController
             $this->request->getVar('period_id')
         );
 
-        // Find active period details to get the academic year (e.g. 2024/2025)
-        $activePeriod = array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null;
-        $tsYear = date('Y');
-        if ($activePeriod) {
-            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
+        $summary = $this->researchModel->getSummary((int) $periodId);
+
+        $categories = ['pt_mandiri', 'lembaga_dalam_negeri', 'lembaga_luar_negeri'];
+        foreach ($categories as $cat) {
+            if (!isset($summary[$cat])) {
+                $summary[$cat] = ['ts2' => 0, 'ts1' => 0, 'ts' => 0];
+            }
         }
-
-        $years = [
-            'ts'  => $tsYear,
-            'ts1' => $tsYear - 1,
-            'ts2' => $tsYear - 2,
-        ];
-
-        // Dynamic summary based on funding source and TS years
-        $summary = [
-            'pt_mandiri' => [
-                'ts2' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-            'lembaga_dalam_negeri' => [
-                'ts2' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-            'lembaga_luar_negeri' => [
-                'ts2' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->researchModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-        ];
-
-        $filters    = $this->service->buildFilters($this->request->getVar() ?? []);
-        $stats      = $this->researchModel->getStats((int) $periodId);
-        $researches = $this->researchModel->select('researches.*, GROUP_CONCAT(lecturers.nama SEPARATOR ", ") as nama')
-            ->join('research_members', 'research_members.research_id = researches.id', 'left')
-            ->join('lecturers', 'lecturers.id = research_members.lecturer_id', 'left')
-            ->where('researches.period_id', $periodId)
-            ->groupBy('researches.id');
-
-        if (!empty($filters['search'])) {
-            $researches->groupStart()
-                ->like('researches.judul_penelitian', $filters['search'])
-                ->orLike('lecturers.nama', $filters['search'])
-                ->groupEnd();
-        }
-        $researchesData = $researches->orderBy('researches.tahun', 'DESC')->paginate(15);
 
         return view('lecturers/research', [
             'title'     => 'Penelitian DTPS',
             'periods'   => $periods,
             'period_id' => $periodId,
-            'filters'   => $filters,
-            'stats'     => $stats,
-            'years'     => $years,
             'summary'   => $summary,
-            'researches' => $researchesData,
-            'pager'     => $this->researchModel->pager,
         ]);
     }
 
     public function storeResearch()
     {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        // Find or create lecturer
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $researchId = $this->service->generateUuid();
-        $data = array_merge($post, [
-            'id' => $researchId,
-        ]);
-        unset($data['lecturer_name']);
-
-        if (!$this->researchModel->insert($data)) {
-            return redirect()->back()->with('error', 'Gagal menyimpan data penelitian.')->withInput();
-        }
-
-        // Add lecturer to research_members
-        $db = \Config\Database::connect();
-        $db->table('research_members')->insert([
-            'id' => $this->service->generateUuid(),
-            'research_id' => $researchId,
-            'lecturer_id' => $lecId,
-            'peran' => 'ketua',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
-
-        return redirect()->to('lecturers/research-performance')->with('success', 'Data penelitian berhasil disimpan.');
-    }
-
-    public function updateResearch(string $id)
-    {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $data = $post;
-        unset($data['id'], $data['lecturer_name']);
-        
-        $this->researchModel->update($id, $data);
-
-        // Update member relation
-        $db = \Config\Database::connect();
-        $db->table('research_members')->where('research_id', $id)->delete();
-        $db->table('research_members')->insert([
-            'id' => $this->service->generateUuid(),
-            'research_id' => $id,
-            'lecturer_id' => $lecId,
-            'peran' => 'ketua',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ]);
-
-        return redirect()->to('lecturers/research-performance')->with('success', 'Data berhasil diperbarui.');
-    }
-
-    public function deleteResearch(string $id)
-    {
         if (!$this->checkAuth(['admin', 'prodi'])) return $this->denyAccess();
 
-        $db = \Config\Database::connect();
-        $db->table('research_members')->where('research_id', $id)->delete();
-        $this->researchModel->delete($id);
+        $periodId = $this->request->getPost('period_id');
+        $summary = $this->request->getPost('summary');
 
-        return redirect()->to('lecturers/research-performance')->with('success', 'Data berhasil dihapus.');
-    }
-
-    public function showResearch(string $id)
-    {
-        if (!$this->checkAuth()) return $this->denyAccess();
-
-        $data = $this->researchModel->select('researches.*, lecturers.nama')
-            ->join('research_members', 'research_members.research_id = researches.id', 'left')
-            ->join('lecturers', 'lecturers.id = research_members.lecturer_id', 'left')
-            ->find($id);
-
-        if (!$data) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Data tidak ditemukan']);
+        if ($summary && is_array($summary)) {
+            foreach ($summary as $key => $values) {
+                $existing = $this->researchModel->where('period_id', $periodId)->where('sumber_dana', $key)->first();
+                $data = [
+                    'period_id' => $periodId,
+                    'sumber_dana' => $key,
+                    'jumlah_ts2' => (int) ($values['ts2'] ?? 0),
+                    'jumlah_ts1' => (int) ($values['ts1'] ?? 0),
+                    'jumlah_ts' => (int) ($values['ts'] ?? 0),
+                ];
+                if ($existing) {
+                    $this->researchModel->update($existing['id'], $data);
+                } else {
+                    $data['id'] = $this->service->generateUuid();
+                    $this->researchModel->insert($data);
+                }
+            }
         }
-        return $this->response->setJSON($data);
+
+        return redirect()->to('lecturers/research-performance?period_id=' . $periodId)->with('success', 'Data penelitian berhasil disimpan.');
     }
 
     // =========================================================
@@ -890,158 +762,53 @@ class LecturerController extends BaseController
             $this->request->getVar('period_id')
         );
 
-        // Find active period details to get the academic year (e.g. 2024/2025)
-        $activePeriod = array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null;
-        $tsYear = date('Y');
-        if ($activePeriod) {
-            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
+        $summary = $this->pkmModel->getSummary((int) $periodId);
+
+        $categories = ['pt_mandiri', 'lembaga_dalam_negeri', 'lembaga_luar_negeri'];
+        foreach ($categories as $cat) {
+            if (!isset($summary[$cat])) {
+                $summary[$cat] = ['ts2' => 0, 'ts1' => 0, 'ts' => 0];
+            }
         }
-
-        $years = [
-            'ts'  => $tsYear,
-            'ts1' => $tsYear - 1,
-            'ts2' => $tsYear - 2,
-        ];
-
-        // Dynamic summary based on funding source and TS years for PkM
-        $summary = [
-            'pt_mandiri' => [
-                'ts2' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'pt_mandiri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-            'lembaga_dalam_negeri' => [
-                'ts2' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_dalam_negeri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-            'lembaga_luar_negeri' => [
-                'ts2' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', 'lembaga_luar_negeri')->where('tahun', $tsYear)->countAllResults(),
-            ],
-        ];
-
-        $filters  = $this->service->buildFilters($this->request->getVar() ?? []);
-        $stats    = $this->pkmModel->getStats((int) $periodId);
-        
-        $services = $this->pkmModel->select('community_services.*, lecturers.nama')
-            ->join('lecturers', 'lecturers.id = community_services.lecturer_id', 'left')
-            ->where('community_services.period_id', $periodId);
-
-        if (!empty($filters['search'])) {
-            $services->groupStart()
-                ->like('community_services.judul_kegiatan', $filters['search'])
-                ->orLike('lecturers.nama', $filters['search'])
-                ->groupEnd();
-        }
-        $servicesData = $services->orderBy('community_services.tahun', 'DESC')->paginate(15);
 
         return view('lecturers/community_service', [
             'title'     => 'Pengabdian kepada Masyarakat (PkM)',
             'periods'   => $periods,
             'period_id' => $periodId,
-            'filters'   => $filters,
-            'stats'     => $stats,
-            'years'     => $years,
             'summary'   => $summary,
-            'services'  => $servicesData,
-            'pager'     => $this->pkmModel->pager,
         ]);
     }
 
     public function storePkm()
     {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        // Find or create lecturer
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $pkmId = $this->service->generateUuid();
-        $data = array_merge($post, [
-            'id' => $pkmId,
-            'lecturer_id' => $lecId,
-        ]);
-        unset($data['lecturer_name']);
-
-        if (!$this->pkmModel->insert($data)) {
-            return redirect()->back()->with('error', 'Gagal menyimpan data PkM.')->withInput();
-        }
-
-        return redirect()->to('lecturers/community-service')->with('success', 'Data PkM berhasil disimpan.');
-    }
-
-    public function updatePkm(string $id)
-    {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $data = $post;
-        $data['lecturer_id'] = $lecId;
-        unset($data['id'], $data['lecturer_name']);
-        
-        $this->pkmModel->update($id, $data);
-
-        return redirect()->to('lecturers/community-service')->with('success', 'Data berhasil diperbarui.');
-    }
-
-    public function deletePkm(string $id)
-    {
         if (!$this->checkAuth(['admin', 'prodi'])) return $this->denyAccess();
 
-        $this->pkmModel->delete($id);
+        $periodId = $this->request->getPost('period_id');
+        $summary = $this->request->getPost('summary');
 
-        return redirect()->to('lecturers/community-service')->with('success', 'Data berhasil dihapus.');
-    }
-
-    public function showPkm(string $id)
-    {
-        if (!$this->checkAuth()) return $this->denyAccess();
-
-        $data = $this->pkmModel->select('community_services.*, lecturers.nama')
-            ->join('lecturers', 'lecturers.id = community_services.lecturer_id', 'left')
-            ->find($id);
-
-        if (!$data) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Data tidak ditemukan']);
+        if ($summary && is_array($summary)) {
+            foreach ($summary as $key => $values) {
+                $existing = $this->pkmModel->where('period_id', $periodId)->where('sumber_dana', $key)->first();
+                $data = [
+                    'period_id' => $periodId,
+                    'sumber_dana' => $key,
+                    'jumlah_ts2' => (int) ($values['ts2'] ?? 0),
+                    'jumlah_ts1' => (int) ($values['ts1'] ?? 0),
+                    'jumlah_ts' => (int) ($values['ts'] ?? 0),
+                ];
+                if ($existing) {
+                    $this->pkmModel->update($existing['id'], $data);
+                } else {
+                    $data['id'] = $this->service->generateUuid();
+                    $this->pkmModel->insert($data);
+                }
+            }
         }
-        return $this->response->setJSON($data);
+
+        return redirect()->to('lecturers/community-service?period_id=' . $periodId)->with('success', 'Data PkM berhasil disimpan.');
     }
+
+
 
     // =========================================================
     // KINERJA — Publikasi Ilmiah (3.b.4)
@@ -1055,156 +822,51 @@ class LecturerController extends BaseController
             $this->request->getVar('period_id')
         );
 
-        $activePeriod = array_values(array_filter($periods, fn($p) => $p['id'] == $periodId))[0] ?? null;
-        $tsYear = date('Y');
-        if ($activePeriod) {
-            $tsYear = (int) substr($activePeriod['tahun_akademik'], 0, 4);
-        }
-
-        $years = [
-            'ts'  => $tsYear,
-            'ts1' => $tsYear - 1,
-            'ts2' => $tsYear - 2,
-        ];
+        $summary = $this->publicationModel->getSummary((int) $periodId);
 
         $jenisLabels = PublicationModel::KATEGORI_LABELS;
-
-        // Dynamic summary based on Kategori Publikasi and TS years
-        $summary = [];
-        foreach ($jenisLabels as $key => $label) {
-            $summary[$key] = [
-                'ts2' => $this->publicationModel->where('period_id', $periodId)->where('kategori_publikasi', $key)->where('tahun', $tsYear - 2)->countAllResults(),
-                'ts1' => $this->publicationModel->where('period_id', $periodId)->where('kategori_publikasi', $key)->where('tahun', $tsYear - 1)->countAllResults(),
-                'ts'  => $this->publicationModel->where('period_id', $periodId)->where('kategori_publikasi', $key)->where('tahun', $tsYear)->countAllResults(),
-            ];
+        foreach (array_keys($jenisLabels) as $cat) {
+            if (!isset($summary[$cat])) {
+                $summary[$cat] = ['ts2' => 0, 'ts1' => 0, 'ts' => 0];
+            }
         }
-
-        $filters      = $this->service->buildFilters($this->request->getVar() ?? []);
-        $stats        = $this->publicationModel->getStats((int) $periodId);
-        
-        $publicationsQuery = $this->publicationModel->select('publications.*, lecturers.nama')
-            ->join('lecturers', 'lecturers.id = publications.lecturer_id', 'left')
-            ->where('publications.period_id', $periodId);
-
-        if (!empty($filters['search'])) {
-            $publicationsQuery->groupStart()
-                ->like('publications.judul', $filters['search'])
-                ->orLike('lecturers.nama', $filters['search'])
-                ->groupEnd();
-        }
-
-        if (!empty($filters['kategori_publikasi'])) {
-            $publicationsQuery->where('publications.kategori_publikasi', $filters['kategori_publikasi']);
-        }
-
-        $publications = $publicationsQuery->orderBy('publications.tahun', 'DESC')->paginate(15);
 
         return view('lecturers/publications', [
             'title'        => 'Publikasi Ilmiah DTPS',
             'periods'      => $periods,
             'period_id'    => $periodId,
-            'filters'      => $filters,
-            'stats'        => $stats,
-            'years'        => $years,
             'summary'      => $summary,
-            'publications' => $publications,
-            'pager'        => $this->publicationModel->pager,
             'jenisLabels'  => $jenisLabels,
         ]);
     }
 
     public function storePublication()
     {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        // Find or create lecturer
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $post['jenis_publikasi'] = $post['kategori_publikasi'] ?? '';
-        $data = array_merge($post, [
-            'id' => $this->service->generateUuid(),
-            'lecturer_id' => $lecId,
-        ]);
-        unset($data['lecturer_name']);
-
-        if (!$this->publicationModel->insert($data)) {
-            return redirect()->back()->with('error', 'Gagal menyimpan data publikasi.')->withInput();
-        }
-
-        return redirect()->to('lecturers/publications/scientific')->with('success', 'Publikasi berhasil disimpan.');
-    }
-
-    public function updatePublication(string $id)
-    {
-        if (!$this->checkAuth(['admin', 'prodi', 'dosen'])) return $this->denyAccess();
-
-        $post = $this->request->getPost();
-        $name = trim($post['lecturer_name'] ?? '');
-        if (empty($name)) {
-            return redirect()->back()->with('error', 'Nama Dosen wajib diisi.')->withInput();
-        }
-
-        $lec = $this->lecturerModel->where('nama', $name)->first();
-        if (!$lec) {
-            $lecId = $this->service->generateUuid();
-            $this->lecturerModel->insert([
-                'id' => $lecId,
-                'nama' => $name,
-                'status_dosen' => 'tetap',
-                'is_dtps' => 1
-            ]);
-        } else {
-            $lecId = $lec['id'];
-        }
-
-        $post['jenis_publikasi'] = $post['kategori_publikasi'] ?? '';
-        $data = $post;
-        $data['lecturer_id'] = $lecId;
-        unset($data['id'], $data['lecturer_name']);
-
-        $this->publicationModel->update($id, $data);
-
-        return redirect()->to('lecturers/publications/scientific')->with('success', 'Data berhasil diperbarui.');
-    }
-
-    public function deletePublication(string $id)
-    {
         if (!$this->checkAuth(['admin', 'prodi'])) return $this->denyAccess();
 
-        $this->publicationModel->delete($id);
+        $periodId = $this->request->getPost('period_id');
+        $summary = $this->request->getPost('summary');
 
-        return redirect()->to('lecturers/publications/scientific')->with('success', 'Data berhasil dihapus.');
-    }
-
-    public function showPublication(string $id)
-    {
-        if (!$this->checkAuth()) return $this->denyAccess();
-
-        $data = $this->publicationModel->select('publications.*, lecturers.nama')
-            ->join('lecturers', 'lecturers.id = publications.lecturer_id', 'left')
-            ->find($id);
-
-        if (!$data) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'Data tidak ditemukan']);
+        if ($summary && is_array($summary)) {
+            foreach ($summary as $key => $values) {
+                $existing = $this->publicationModel->where('period_id', $periodId)->where('kategori_publikasi', $key)->first();
+                $data = [
+                    'period_id' => $periodId,
+                    'kategori_publikasi' => $key,
+                    'jumlah_ts2' => (int) ($values['ts2'] ?? 0),
+                    'jumlah_ts1' => (int) ($values['ts1'] ?? 0),
+                    'jumlah_ts' => (int) ($values['ts'] ?? 0),
+                ];
+                if ($existing) {
+                    $this->publicationModel->update($existing['id'], $data);
+                } else {
+                    $data['id'] = $this->service->generateUuid();
+                    $this->publicationModel->insert($data);
+                }
+            }
         }
-        return $this->response->setJSON($data);
+
+        return redirect()->to('lecturers/publications/scientific?period_id=' . $periodId)->with('success', 'Data publikasi ilmiah berhasil disimpan.');
     }
 
     // =========================================================
@@ -1263,7 +925,6 @@ class LecturerController extends BaseController
         $data = array_merge($post, [
             'id' => $this->service->generateUuid(),
             'lecturer_id' => $lecId,
-            'sumber_sitasi' => '',
         ]);
         unset($data['lecturer_name']);
 
@@ -1299,7 +960,6 @@ class LecturerController extends BaseController
 
         $data = $post;
         $data['lecturer_id'] = $lecId;
-        $data['sumber_sitasi'] = '';
         unset($data['id'], $data['lecturer_name']);
 
         $this->citationModel->update($id, $data);
@@ -1385,8 +1045,6 @@ class LecturerController extends BaseController
         $data = array_merge($post, [
             'id' => $this->service->generateUuid(),
             'lecturer_id' => $lecId,
-            'nama_industri' => '',
-            'bukti_adopsi' => '',
             'status_komersialisasi' => 0,
         ]);
         unset($data['lecturer_name']);
@@ -1423,8 +1081,6 @@ class LecturerController extends BaseController
 
         $data = $post;
         $data['lecturer_id'] = $lecId;
-        $data['nama_industri'] = '';
-        $data['bukti_adopsi'] = '';
         $data['status_komersialisasi'] = 0;
         unset($data['id'], $data['lecturer_name']);
 
@@ -1507,12 +1163,6 @@ class LecturerController extends BaseController
         $data = array_merge($post, [
             'id' => $this->service->generateUuid(),
             'lecturer_id' => $lecId,
-            'jenis_hki' => '',
-            'nomor_pendaftaran' => '',
-            'nomor_hki' => '',
-            'penerbit' => '',
-            'isbn' => '',
-            'status' => 'terdaftar',
         ]);
 
         if (!$this->ipModel->insert($data)) {
@@ -1529,13 +1179,6 @@ class LecturerController extends BaseController
         $post = $this->request->getPost();
         $data = $post;
         unset($data['id']);
-        
-        $data['jenis_hki'] = '';
-        $data['nomor_pendaftaran'] = '';
-        $data['nomor_hki'] = '';
-        $data['penerbit'] = '';
-        $data['isbn'] = '';
-        $data['status'] = 'terdaftar';
 
         $this->ipModel->update($id, $data);
 
