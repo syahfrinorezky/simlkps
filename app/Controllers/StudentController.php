@@ -149,8 +149,6 @@ class StudentController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'study_program_id' => 'required',
-            'tahun_akademik' => 'required|regex_match[/^[0-9]{4}\/[0-9]{4}$/]',
             'daya_tampung' => 'required|numeric|greater_than_equal_to[0]',
             'jumlah_pendaftar' => 'required|numeric|greater_than_equal_to[0]',
             'jumlah_lulus_seleksi' => 'required|numeric|greater_than_equal_to[0]',
@@ -164,6 +162,13 @@ class StudentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $sessionStudyProgramId = session()->get('studyProgramId');
+        $sp = $this->studyProgramModel->where('status_aktif', 1)->first();
+        $studyProgramId = $sessionStudyProgramId ?? ($sp ? $sp['id'] : null);
+
+        $period = $this->periodModel->find($this->request->getPost('period_id'));
+        $tahunAkademik = $period ? $period['tahun_akademik'] : (date('Y') . '/' . (date('Y') + 1));
+
         // Generate UUID
         $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff), mt_rand(0, 0xffff),
@@ -176,8 +181,8 @@ class StudentController extends BaseController
         $this->admissionModel->insert([
             'id' => $uuid,
             'period_id' => $this->request->getPost('period_id'),
-            'study_program_id' => $this->request->getPost('study_program_id'),
-            'tahun_akademik' => $this->request->getPost('tahun_akademik'),
+            'study_program_id' => $studyProgramId,
+            'tahun_akademik' => $tahunAkademik,
             'daya_tampung' => $this->request->getPost('daya_tampung'),
             'jumlah_pendaftar' => $this->request->getPost('jumlah_pendaftar'),
             'jumlah_lulus_seleksi' => $this->request->getPost('jumlah_lulus_seleksi'),
@@ -216,8 +221,6 @@ class StudentController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'study_program_id' => 'required',
-            'tahun_akademik' => 'required|regex_match[/^[0-9]{4}\/[0-9]{4}$/]',
             'daya_tampung' => 'required|numeric|greater_than_equal_to[0]',
             'jumlah_pendaftar' => 'required|numeric|greater_than_equal_to[0]',
             'jumlah_lulus_seleksi' => 'required|numeric|greater_than_equal_to[0]',
@@ -231,10 +234,17 @@ class StudentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $sessionStudyProgramId = session()->get('studyProgramId');
+        $sp = $this->studyProgramModel->where('status_aktif', 1)->first();
+        $studyProgramId = $sessionStudyProgramId ?? ($sp ? $sp['id'] : null);
+
+        $period = $this->periodModel->find($this->request->getPost('period_id'));
+        $tahunAkademik = $period ? $period['tahun_akademik'] : (date('Y') . '/' . (date('Y') + 1));
+
         $this->admissionModel->update($id, [
             'period_id' => $this->request->getPost('period_id'),
-            'study_program_id' => $this->request->getPost('study_program_id'),
-            'tahun_akademik' => $this->request->getPost('tahun_akademik'),
+            'study_program_id' => $studyProgramId,
+            'tahun_akademik' => $tahunAkademik,
             'daya_tampung' => $this->request->getPost('daya_tampung'),
             'jumlah_pendaftar' => $this->request->getPost('jumlah_pendaftar'),
             'jumlah_lulus_seleksi' => $this->request->getPost('jumlah_lulus_seleksi'),
@@ -265,8 +275,6 @@ class StudentController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'study_program_id' => 'required',
-            'tahun_akademik' => 'required|regex_match[/^[0-9]{4}\/[0-9]{4}$/]',
             'mahasiswa_aktif_ts2' => 'required|numeric|greater_than_equal_to[0]',
             'mahasiswa_aktif_ts1' => 'required|numeric|greater_than_equal_to[0]',
             'mahasiswa_aktif_ts' => 'required|numeric|greater_than_equal_to[0]',
@@ -282,6 +290,13 @@ class StudentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $sessionStudyProgramId = session()->get('studyProgramId');
+        $sp = $this->studyProgramModel->where('status_aktif', 1)->first();
+        $studyProgramId = $sessionStudyProgramId ?? ($sp ? $sp['id'] : null);
+
+        $period = $this->periodModel->find($this->request->getPost('period_id'));
+        $tahunAkademik = $period ? $period['tahun_akademik'] : (date('Y') . '/' . (date('Y') + 1));
+
         $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff), mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
@@ -293,8 +308,8 @@ class StudentController extends BaseController
         $this->foreignModel->insert([
             'id' => $uuid,
             'period_id' => $this->request->getPost('period_id'),
-            'study_program_id' => $this->request->getPost('study_program_id'),
-            'tahun_akademik' => $this->request->getPost('tahun_akademik'),
+            'study_program_id' => $studyProgramId,
+            'tahun_akademik' => $tahunAkademik,
             'mahasiswa_aktif_ts2' => $this->request->getPost('mahasiswa_aktif_ts2'),
             'mahasiswa_aktif_ts1' => $this->request->getPost('mahasiswa_aktif_ts1'),
             'mahasiswa_aktif_ts' => $this->request->getPost('mahasiswa_aktif_ts'),
@@ -335,8 +350,6 @@ class StudentController extends BaseController
 
         $rules = [
             'period_id' => 'required',
-            'study_program_id' => 'required',
-            'tahun_akademik' => 'required|regex_match[/^[0-9]{4}\/[0-9]{4}$/]',
             'mahasiswa_aktif_ts2' => 'required|numeric|greater_than_equal_to[0]',
             'mahasiswa_aktif_ts1' => 'required|numeric|greater_than_equal_to[0]',
             'mahasiswa_aktif_ts' => 'required|numeric|greater_than_equal_to[0]',
@@ -352,10 +365,17 @@ class StudentController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $sessionStudyProgramId = session()->get('studyProgramId');
+        $sp = $this->studyProgramModel->where('status_aktif', 1)->first();
+        $studyProgramId = $sessionStudyProgramId ?? ($sp ? $sp['id'] : null);
+
+        $period = $this->periodModel->find($this->request->getPost('period_id'));
+        $tahunAkademik = $period ? $period['tahun_akademik'] : (date('Y') . '/' . (date('Y') + 1));
+
         $this->foreignModel->update($id, [
             'period_id' => $this->request->getPost('period_id'),
-            'study_program_id' => $this->request->getPost('study_program_id'),
-            'tahun_akademik' => $this->request->getPost('tahun_akademik'),
+            'study_program_id' => $studyProgramId,
+            'tahun_akademik' => $tahunAkademik,
             'mahasiswa_aktif_ts2' => $this->request->getPost('mahasiswa_aktif_ts2'),
             'mahasiswa_aktif_ts1' => $this->request->getPost('mahasiswa_aktif_ts1'),
             'mahasiswa_aktif_ts' => $this->request->getPost('mahasiswa_aktif_ts'),
