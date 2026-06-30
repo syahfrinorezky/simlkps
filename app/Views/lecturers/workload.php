@@ -13,7 +13,7 @@
     formAction: '',
     totalSks: 0,
     form: {
-        lecturer_name: '', semester: 'ganjil',
+        lecturer_name: '',
         is_dtps: true,
         sks_pengajaran: 0, sks_ps_lain_dalam_pt: 0, sks_ps_luar_pt: 0,
         sks_penelitian: 0, sks_pkm: 0, sks_penunjang: 0
@@ -22,7 +22,7 @@
         this.modalTitle = 'Tambah Data EWMP';
         this.formAction = '<?= base_url('lecturers/workload/store') ?>';
         this.form = {
-            lecturer_name: '', semester: 'ganjil',
+            lecturer_name: '',
             is_dtps: true,
             sks_pengajaran: 0, sks_ps_lain_dalam_pt: 0, sks_ps_luar_pt: 0,
             sks_penelitian: 0, sks_pkm: 0, sks_penunjang: 0
@@ -48,6 +48,22 @@
                 this.loading = false;
                 this.modalOpen = false;
                 this.$dispatch('show-toast', { type: 'error', message: 'Gagal memuat data.' });
+            });
+    },
+    openDetail(id) {
+        this.loading = true;
+        this.detailOpen = true;
+        fetch('<?= base_url('lecturers/workload/show') ?>/' + id)
+            .then(res => res.json())
+            .then(data => {
+                data.lecturer_name = data.nama || '';
+                this.detailData = data;
+                this.loading = false;
+            })
+            .catch(err => {
+                this.loading = false;
+                this.detailOpen = false;
+                this.$dispatch('show-toast', { type: 'error', message: 'Gagal memuat detail.' });
             });
     },
     confirmDelete(id) {
@@ -114,14 +130,10 @@
         <form method="GET" action="<?= base_url('lecturers/workload') ?>" class="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full">
             <select name="period_id" onchange="this.form.submit()" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
                 <?php foreach ($periods as $p): ?>
-                <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= esc($p['nama_periode']) ?></option>
+                <option value="<?= $p['id'] ?>" <?= $period_id == $p['id'] ? 'selected' : '' ?>><?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?></option>
                 <?php endforeach; ?>
             </select>
-            <select onchange="this.form.submit()" name="semester" class="col-span-1 sm:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 text-slate-700 transition-all">
-                <option value="">Semua Semester</option>
-                <option value="ganjil" <?= ($filters['semester'] ?? '') === 'ganjil' ? 'selected' : '' ?>>Ganjil</option>
-                <option value="genap" <?= ($filters['semester'] ?? '') === 'genap' ? 'selected' : '' ?>>Genap</option>
-            </select>
+
             <div class="relative col-span-2 sm:flex-1">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
                 <input type="text" name="search" value="<?= esc($filters['search'] ?? '') ?>" placeholder="Cari nama dosen..."
@@ -149,7 +161,6 @@
                     <tr class="bg-slate-50 border-b border-slate-200">
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Nama Dosen</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">DTPS</th>
-                        <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Semester</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">Pembelajaran</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">PS Lain</th>
                         <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center whitespace-nowrap">PS Luar</th>
@@ -174,11 +185,7 @@
                             <span class="inline-flex text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500">Non-DTPS</span>
                             <?php endif; ?>
                         </td>
-                        <td class="p-4">
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full <?= $w['semester'] === 'ganjil' ? 'bg-blue-50 text-blue-700' : 'bg-violet-50 text-violet-700' ?>">
-                                <?= ucfirst($w['semester']) ?>
-                            </span>
-                        </td>
+
                         <td class="p-4 text-center text-slate-700"><?= $w['sks_pengajaran'] ?></td>
                         <td class="p-4 text-center text-slate-700"><?= $w['sks_ps_lain_dalam_pt'] ?></td>
                         <td class="p-4 text-center text-slate-700"><?= $w['sks_ps_luar_pt'] ?></td>
@@ -191,11 +198,14 @@
                         </td>
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
+                                <button @click="openDetail('<?= $w['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-700 transition-all cursor-pointer" title="Detail">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
                                 <?php if (in_array(session()->get('userRole'), ['admin', 'prodi'])): ?>
-                                <button @click="openEdit('<?= $w['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary transition-all cursor-pointer">
+                                <button @click="openEdit('<?= $w['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-primary transition-all cursor-pointer" title="Edit">
                                     <i data-lucide="pencil" class="w-4 h-4"></i>
                                 </button>
-                                <button @click="confirmDelete('<?= $w['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-red-600 transition-all cursor-pointer">
+                                <button @click="confirmDelete('<?= $w['id'] ?>')" class="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-red-600 transition-all cursor-pointer" title="Hapus">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                                 <?php endif; ?>
@@ -239,14 +249,7 @@
                             <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Nama Dosen *</label>
                             <input type="text" name="lecturer_name" x-model="form.lecturer_name" required placeholder="Ketik nama dosen" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all">
                         </div>
-                        <div>
-                            <label class="block text-[10px] sm:text-[10px] sm:text-xs font-semibold text-slate-500 uppercase truncate tracking-wider mb-2">Semester</label>
-                            <select onchange="this.form.submit()" name="semester" x-model="form.semester" class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-slate-50/50 text-sm border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
-                                <option value="ganjil">Ganjil</option>
-                                <option value="genap">Genap</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center pt-6">
+                        <div class="flex items-center pt-2 col-span-1 sm:col-span-2">
                             <label class="flex items-center gap-3 cursor-pointer select-none">
                                 <input type="checkbox" name="is_dtps" :checked="form.is_dtps" @change="form.is_dtps = $event.target.checked" value="1" class="w-5 h-5 text-primary border-slate-300 rounded-lg focus:ring-primary/30">
                                 <span class="text-sm font-semibold text-slate-700">Dosen Tetap Program Studi (DTPS)</span>
@@ -283,6 +286,80 @@
                     <button type="submit" class="w-full sm:w-auto px-5 py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/95 shadow-md transition-all cursor-pointer">Simpan Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div x-show="detailOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs" x-transition x-cloak>
+        <div class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-100" @click.outside="detailOpen = false">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Detail EWMP Dosen</h3>
+                <button type="button" @click="detailOpen = false" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Nama Dosen</span>
+                        <span class="font-bold text-slate-800 text-base" x-text="detailData.lecturer_name || '-'"></span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold">Status Dosen</span>
+                        <span class="font-semibold uppercase text-xs px-2 py-0.5 rounded-full inline-block mt-1" :class="detailData.is_dtps == 1 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" x-text="detailData.is_dtps == 1 ? 'DTPS' : 'Non-DTPS'"></span>
+                    </div>
+                </div>
+
+
+
+                <div class="border-t border-slate-100 pt-3">
+                    <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold mb-2">Beban Kerja Mengajar (SKS)</span>
+                    <div class="grid grid-cols-3 gap-3 text-center bg-slate-50 p-3 rounded-xl text-xs">
+                        <div>
+                            <span class="text-slate-400 block">PS Sendiri</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_pengajaran || '0'"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">PS Lain Dalam PT</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_ps_lain_dalam_pt || '0'"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">PS Luar PT</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_ps_luar_pt || '0'"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3">
+                    <span class="text-slate-400 block text-xs font-semibold uppercase tracking-wider font-bold mb-2">Tridharma & Penunjang (SKS)</span>
+                    <div class="grid grid-cols-3 gap-3 text-center bg-slate-50 p-3 rounded-xl text-xs">
+                        <div>
+                            <span class="text-slate-400 block">Penelitian</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_penelitian || '0'"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">PkM</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_pkm || '0'"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block">Penunjang</span>
+                            <span class="font-bold text-slate-700 text-sm" x-text="detailData.sks_penunjang || '0'"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-3 flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-150">
+                    <span class="text-sm font-semibold text-slate-700 font-bold">Total EWMP (SKS)</span>
+                    <span class="text-xl font-bold text-primary" x-text="detailData.total_sks || '0'"></span>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button @click="detailOpen = false" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-sm transition">Tutup</button>
+            </div>
         </div>
     </div>
 
