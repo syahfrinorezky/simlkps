@@ -340,7 +340,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -692,28 +692,10 @@
                                 <option value="">-- Pilih Periode --</option>
                                 <?php foreach ($periods as $p) : ?>
                                     <option value="<?= $p['id'] ?>">
-                                        <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                        <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Program Studi *</label>
-                            <select name="study_program_id" x-model="studyProgramId" required class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all cursor-pointer">
-                                <option value="">-- Pilih Program Studi --</option>
-                                <?php foreach ($studyPrograms as $sp) : ?>
-                                    <option value="<?= $sp['id'] ?>">
-                                        <?= esc($sp['nama_prodi']) ?> (<?= esc($sp['jenjang']) ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tahun Akademik * (Format: YYYY/YYYY)</label>
-                            <input type="text" name="tahun_akademik" x-model="tahunAkademik" required placeholder="e.g. 2025/2026" class="w-full px-4 py-3 bg-slate-50/50 border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all">
                         </div>
                     </div>
 
