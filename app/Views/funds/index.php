@@ -123,7 +123,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -183,7 +183,6 @@
                             <tr class="hover:bg-slate-50/50 transition-all text-sm" data-row-idx="<?= $no ?>" x-show="isRowVisible(<?= $no ?>)">
                                 <td class="p-4 text-slate-600 text-center font-medium"><?= $no + 1 ?></td>
                                 <td class="p-4">
-                                    <span class="inline-block px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-xs mb-1 font-semibold"><?= esc($f['kategori']) ?></span>
                                     <div class="font-semibold text-slate-800"><?= esc($f['jenis_penggunaan']) ?></div>
                                 </td>
                                 <td class="p-4 text-right border-l border-slate-100"><?= number_format($f['upps_ts_2'], 0, ',', '.') ?></td>
@@ -242,26 +241,12 @@
                 </button>
             </div>
             <form :action="formAction" method="POST" class="p-6 space-y-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="period_id" :value="periodId">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Kategori</label>
-                        <select name="kategori" x-model="kategori" required class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                            <option value="">Pilih Kategori</option>
-                            <option value="Biaya Operasional Pendidikan">1. Biaya Operasional Pendidikan</option>
-                            <option value="Biaya operasional kemahasiswaan">2. Biaya operasional kemahasiswaan</option>
-                            <option value="Biaya Penelitian">3. Biaya Penelitian</option>
-                            <option value="Biaya PkM">4. Biaya PkM</option>
-                            <option value="Biaya Investasi SDM">5. Biaya Investasi SDM</option>
-                            <option value="Biaya Investasi Sarana">6. Biaya Investasi Sarana</option>
-                            <option value="Biaya Investasi Prasarana">7. Biaya Investasi Prasarana</option>
-                        </select>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Jenis Penggunaan</label>
-                        <input type="text" name="jenis_penggunaan" x-model="jenisPenggunaan" required placeholder="Jenis Penggunaan..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-semibold text-slate-600 font-bold">Jenis Penggunaan *</label>
+                    <input type="text" name="jenis_penggunaan" x-model="jenisPenggunaan" required placeholder="Jenis Penggunaan..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                 </div>
 
                 <hr class="border-slate-100 my-2">
