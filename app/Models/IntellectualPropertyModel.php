@@ -12,8 +12,7 @@ class IntellectualPropertyModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'lecturer_id', 'judul_hki', 'kategori', 'jenis_hki',
-        'nomor_pendaftaran', 'nomor_hki', 'penerbit', 'isbn', 'status', 'tahun',
+        'id', 'period_id', 'lecturer_id', 'judul_hki', 'kategori', 'tahun', 'keterangan'
     ];
 
     public const KATEGORI_LABELS = [
