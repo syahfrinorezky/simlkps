@@ -111,7 +111,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
