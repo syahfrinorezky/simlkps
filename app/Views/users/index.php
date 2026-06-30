@@ -176,7 +176,6 @@
                     <tr class="border-b border-slate-200 text-slate-400 text-xs font-semibold uppercase bg-slate-50/30">
                         <th class="px-6 py-4">User</th>
                         <th class="px-6 py-4">Role</th>
-                        <th class="px-6 py-4">Relasi Data</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
@@ -216,24 +215,7 @@
                                     <?= esc($user['role_name']) ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4.5">
-                                <div class="text-xs space-y-1">
-                                    <?php if ($user['role_name'] === 'dosen' && $user['lecturer_name']): ?>
-                                        <div class="flex items-center gap-1.5 text-slate-700 font-medium">
-                                            <i data-lucide="contact" class="w-3.5 h-3.5 text-slate-400"></i>
-                                            <span><?= esc($user['lecturer_name']) ?></span>
-                                        </div>
-                                        <div class="text-slate-400 pl-5">NIDN: <?= esc($user['nidn'] ?: '-') ?></div>
-                                    <?php elseif ($user['role_name'] === 'prodi' && $user['nama_prodi']): ?>
-                                        <div class="flex items-center gap-1.5 text-slate-700 font-medium">
-                                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-slate-400"></i>
-                                            <span><?= esc($user['nama_prodi']) ?></span>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-slate-400">-</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+
                             <td class="px-6 py-4.5 text-center">
                                 <!-- toggle status reaktif alpine per baris, tanpa manipulasi DOM langsung -->
                                 <button
@@ -292,7 +274,6 @@
                     <tr class="border-b border-slate-200 text-slate-400 text-xs font-semibold uppercase bg-slate-50/30">
                         <th class="px-6 py-4">User</th>
                         <th class="px-6 py-4">Role</th>
-                        <th class="px-6 py-4">Relasi Data</th>
                         <th class="px-6 py-4 text-center">Sisa Waktu</th>
                         <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
@@ -322,23 +303,7 @@
                                     <?= esc($user['role_name']) ?>
                                 </span>
                             </td>
-                            <td class="px-6 py-4.5">
-                                <div class="text-xs space-y-1">
-                                    <?php if ($user['role_name'] === 'dosen' && $user['lecturer_name']): ?>
-                                        <div class="flex items-center gap-1.5 text-slate-500 font-medium">
-                                            <i data-lucide="contact" class="w-3.5 h-3.5 text-slate-400"></i>
-                                            <span><?= esc($user['lecturer_name']) ?></span>
-                                        </div>
-                                    <?php elseif ($user['role_name'] === 'prodi' && $user['nama_prodi']): ?>
-                                        <div class="flex items-center gap-1.5 text-slate-500 font-medium">
-                                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-slate-400"></i>
-                                            <span><?= esc($user['nama_prodi']) ?></span>
-                                        </div>
-                                    <?php else: ?>
-                                        <span class="text-slate-400">-</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+
                             <td class="px-6 py-4.5 text-center">
                                 <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700">
                                     <i data-lucide="clock" class="w-3 h-3 text-amber-600 shrink-0"></i>
@@ -442,27 +407,7 @@
                         </select>
                     </div>
 
-                    <!-- relasi program studi (role prodi) -->
-                    <div x-show="showProdi" x-transition>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Program Studi</label>
-                        <select name="study_program_id" x-model="studyProgramId" x-init="tomSelectProdi = new TomSelect($el, { create: false, placeholder: 'Pilih Program Studi' })" @change="studyProgramId = $event.target.value" :required="showProdi" class="w-full">
-                            <option value="">Pilih Program Studi</option>
-                            <?php foreach ($studyPrograms as $sp): ?>
-                                <option value="<?= esc($sp['id']) ?>"><?= esc($sp['nama_prodi']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
 
-                    <!-- relasi dosen (role dosen) -->
-                    <div x-show="showDosen" x-transition>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Data Dosen</label>
-                        <select name="lecturer_id" x-model="lecturerId" x-init="tomSelectDosen = new TomSelect($el, { create: false, placeholder: 'Pilih Dosen' })" @change="lecturerId = $event.target.value" :required="showDosen" class="w-full">
-                            <option value="">Pilih Dosen</option>
-                            <?php foreach ($lecturers as $l): ?>
-                                <option value="<?= esc($l['id']) ?>"><?= esc($l['nama']) ?> (NIDN: <?= esc($l['nidn'] ?: '-') ?>)</option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
 
                     <!-- status akun (hanya saat edit) -->
                     <div x-show="showStatus" x-transition>
