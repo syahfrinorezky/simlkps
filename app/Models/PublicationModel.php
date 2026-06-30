@@ -12,8 +12,7 @@ class PublicationModel extends Model
     protected $useAutoIncrement = false;
     protected $useTimestamps    = true;
     protected $allowedFields    = [
-        'id', 'period_id', 'lecturer_id', 'judul', 'kategori_publikasi',
-        'penerbit', 'nomor_issn_isbn', 'jenis_publikasi', 'tingkat', 'tahun', 'tautan',
+        'id', 'period_id', 'kategori_publikasi', 'jumlah_ts2', 'jumlah_ts1', 'jumlah_ts'
     ];
 
     public const KATEGORI_LABELS = [
@@ -29,50 +28,17 @@ class PublicationModel extends Model
         'pagelaran_internasional'        => 'Pagelaran/Pameran Internasional',
     ];
 
-    public function getWithLecturer(int $periodId, array $filters = [])
+    public function getSummary(int $periodId): array
     {
-        $builder = $this->select('publications.*, lecturers.nama, lecturers.nidn')
-            ->join('lecturers', 'lecturers.id = publications.lecturer_id')
-            ->where('publications.period_id', $periodId);
-
-        if (!empty($filters['search'])) {
-            $builder->groupStart()
-                ->like('publications.judul', $filters['search'])
-                ->orLike('lecturers.nama', $filters['search'])
-                ->orLike('publications.penerbit', $filters['search'])
-                ->groupEnd();
+        $rows = $this->where('period_id', $periodId)->findAll();
+        $summary = [];
+        foreach ($rows as $r) {
+            $summary[$r['kategori_publikasi']] = [
+                'ts2' => (int) $r['jumlah_ts2'],
+                'ts1' => (int) $r['jumlah_ts1'],
+                'ts'  => (int) $r['jumlah_ts'],
+            ];
         }
-
-        if (!empty($filters['kategori_publikasi'])) {
-            $builder->where('publications.kategori_publikasi', $filters['kategori_publikasi']);
-        }
-
-        if (!empty($filters['tingkat'])) {
-            $builder->where('publications.tingkat', $filters['tingkat']);
-        }
-
-        if (!empty($filters['tahun'])) {
-            $builder->where('publications.tahun', $filters['tahun']);
-        }
-
-        return $builder->orderBy('publications.tahun', 'DESC');
-    }
-
-    public function getSummaryByJenis(int $periodId): array
-    {
-        return $this->select('kategori_publikasi, COUNT(*) as jumlah')
-            ->where('period_id', $periodId)
-            ->groupBy('kategori_publikasi')
-            ->findAll();
-    }
-
-    public function getStats(int $periodId): array
-    {
-        $total         = $this->where('period_id', $periodId)->countAllResults();
-        $internasional = $this->where('period_id', $periodId)->whereIn('kategori_publikasi', ['jurnal_internasional', 'jurnal_internasional_bereputasi'])->countAllResults();
-        $nasional      = $this->where('period_id', $periodId)->whereIn('kategori_publikasi', ['jurnal_nasional_terakreditasi', 'seminar_nasional', 'pagelaran_nasional'])->countAllResults();
-        $bereputasi    = $this->where('period_id', $periodId)->where('kategori_publikasi', 'jurnal_internasional_bereputasi')->countAllResults();
-
-        return compact('total', 'internasional', 'nasional', 'bereputasi');
+        return $summary;
     }
 }
