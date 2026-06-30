@@ -12,8 +12,6 @@
     formAction: '',
     id: '',
     periodId: '<?= $selectedPeriod ?>',
-    semester: 1,
-    kodeMk: '',
     namaMk: '',
     mkKompetensi: false,
     sksKuliah: 0,
@@ -47,8 +45,6 @@
         this.modalTitle = 'Tambah Mata Kuliah';
         this.formAction = '<?= base_url('courses/curriculum/store') ?>';
         this.periodId = '<?= $selectedPeriod ?>';
-        this.semester = 1;
-        this.kodeMk = '';
         this.namaMk = '';
         this.mkKompetensi = false;
         this.sksKuliah = 0;
@@ -71,8 +67,6 @@
             .then(res => res.json())
             .then(data => {
                 this.periodId = data.period_id;
-                this.semester = data.semester;
-                this.kodeMk = data.kode_mk;
                 this.namaMk = data.nama_mk;
                 this.mkKompetensi = data.mk_kompetensi == 1;
                 this.sksKuliah = data.sks_kuliah;
@@ -135,7 +129,7 @@
                         <option value="">-- Pilih Periode --</option>
                         <?php foreach ($periods as $p) : ?>
                             <option value="<?= $p['id'] ?>" <?= $selectedPeriod == $p['id'] ? 'selected' : '' ?>>
-                                <?= esc($p['nama_periode']) ?> (<?= esc($p['tahun_akademik']) ?>)
+                                <?= format_periode($p['nama_periode'], $p['tahun_akademik']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -172,8 +166,6 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-center">
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-12" rowspan="2">No</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-12" rowspan="2">Sem</th>
-                            <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-32" rowspan="2">Kode MK</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-left min-w-[200px]" rowspan="2">Nama Mata Kuliah</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-24" rowspan="2">Kompetensi</th>
                             <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider border-l border-slate-200" colspan="3">Bobot Kredit (SKS)</th>
@@ -199,8 +191,6 @@
                         <?php $no = 0; foreach ($courses as $c) : ?>
                             <tr class="hover:bg-slate-50/50 transition-all text-sm" data-row-idx="<?= $no ?>" x-show="isRowVisible(<?= $no ?>)">
                                 <td class="p-4 text-slate-600 text-center font-medium"><?= $no + 1 ?></td>
-                                <td class="p-4 text-center font-semibold text-slate-800"><?= $c['semester'] ?></td>
-                                <td class="p-4 font-mono font-bold text-slate-700 text-center"><?= esc($c['kode_mk']) ?></td>
                                 <td class="p-4 font-semibold text-slate-900"><?= esc($c['nama_mk']) ?></td>
                                 <td class="p-4 text-center">
                                     <?= $c['mk_kompetensi'] ? '<span class="inline-flex px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs font-semibold">Ya</span>' : '<span class="inline-flex px-2 py-0.5 bg-slate-100 text-slate-500 border border-slate-200 rounded-full text-xs font-semibold">Tidak</span>' ?>
@@ -280,19 +270,12 @@
                 </button>
             </div>
             <form :action="formAction" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                <?= csrf_field() ?>
                 <input type="hidden" name="period_id" :value="periodId">
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 gap-4">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Semester</label>
-                        <input type="number" name="semester" x-model="semester" required min="1" max="8" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Kode Mata Kuliah</label>
-                        <input type="text" name="kode_mk" x-model="kodeMk" required placeholder="Contoh: KB123" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-semibold text-slate-600">Nama Mata Kuliah</label>
+                        <label class="text-xs font-semibold text-slate-600 font-bold">Nama Mata Kuliah *</label>
                         <input type="text" name="nama_mk" x-model="namaMk" required placeholder="Nama matakuliah..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
                     </div>
                 </div>
